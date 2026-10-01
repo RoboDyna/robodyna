@@ -1,0 +1,74 @@
+urdf_path: "./ur5_wsg_gripper.urdf"
+srdf_path: "./ur5.srdf"
+joint_stiffness: 1000
+joint_damping: 200
+gripper_stiffnes: 1000
+gripper_damping: 200
+move_group: ["ee_link","ee_link"]
+ee_joints: ["ee_fixed_joint","ee_fixed_joint"]
+arm_joints_name: [["shoulder_pan_joint" ,"shoulder_lift_joint" ,"elbow_joint" ,"wrist_1_joint", "wrist_2_joint", "wrist_3_joint"],
+                  ["shoulder_pan_joint" ,"shoulder_lift_joint" ,"elbow_joint" ,"wrist_1_joint", "wrist_2_joint", "wrist_3_joint"]]
+# gripper_name: [["robotiq_85_left_knuckle_joint", "robotiq_85_right_knuckle_joint"],
+              #  ["robotiq_85_left_knuckle_joint", "robotiq_85_right_knuckle_joint"]]
+gripper_name:
+  - base: "base_joint_gripper_left"
+    mimic: [["base_joint_gripper_right", -1., 0.]]
+  - base: "base_joint_gripper_left"
+    mimic: [["base_joint_gripper_right", -1., 0.]]
+gripper_bias: 0.11
+gripper_scale: [0.01, -0.06]
+homestate: [[-1.5447, -1.5447, -1.5447, -1.5794, 1.5794, 0],
+            [-1.5447, -1.5447, -1.5447, -1.5794, 1.5794, 0]]
+delta_matrix: [[1,0,0],[0,1,0],[0,0,1]]
+global_trans_matrix: [[1,0,0],[0,-1,0],[0,0,-1]]
+robot_pose: [[0, -0.65, 0.70, 1, 0, 0, 0],[0, -0.65, 0.70, 1, 0, 0, 0]]   # identical base pose; x symmetry comes from embodiment_dis
+planner: "curobo"
+dual_arm: False
+fix_gripper_name: ["finger_left", "finger_right"]
+static_camera_list: 
+- name: head_camera
+  position:
+  - 0.0
+  - -0.50
+  - 2.0
+  forward:
+  - 0
+  - 0.45
+  - -1.0
+  left:
+  - -1
+  - 0
+  - 0
+# Third-person / viewer-style camera — locked to the v1 demo framing.
+# Do not change without regenerating demo videos; all play_billiard demos
+# should use this pose.
+- name: demo_camera
+  type: Demo_D435
+  position:
+  - 0.477
+  - 0.253
+  - 1.625
+  forward:
+  - -0.5116
+  - -0.2174
+  - -0.8313
+  left:
+  - 0.3911
+  - -0.9203
+  - 0.0
+# Front, roughly-eye-level view looking straight at the table (as opposed to head_camera's
+# elevated, downward-angled view) -- used by marble_shelf_maze's "robot's perspective" demo.
+- name: front_camera
+  type: D435
+  position:
+  - 0.0
+  - -0.75
+  - 1.0
+  forward:
+  - 0
+  - 1
+  - 0
+  left:
+  - -1
+  - 0
+  - 0

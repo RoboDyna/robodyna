@@ -1,0 +1,203 @@
+
+collision_spheres:
+    fr_base_link:
+        - "center": [0.0, 0.0, 0.0]
+          "radius": 0.02
+    fr_link1:
+        - "center": [0.0, 0.0, 0.0]
+          "radius": 0.02
+    fr_link2:
+        - "center": [0.0, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.03, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.06, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.09, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.12, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.16, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.19, 0.0, 0.0]
+          "radius": 0.03
+        - "center": [-0.21, 0.0, 0.0]
+          "radius": 0.03
+    fr_link3:
+        - "center": [0.04, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.0, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.08, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.12, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.14, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.18, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.22, 0.0, -0.06]
+          "radius": 0.03
+        - "center": [0.23, 0.0, -0.06]
+          "radius": 0.03
+    fr_link4:
+        - "center": [0.065, 0.001, -0.062]
+          "radius": 0.027
+    fr_link5:
+        - "center": [-0.0, -0.0, 0.077]
+          "radius": 0.03
+    fr_link6:
+        - "center": [0.022, -0.0, -0.0]
+          "radius": 0.03
+        - "center": [0.05, 0.0, 0.0]
+          "radius": 0.01
+        - "center": [0.07, 0.0, 0.0]
+          "radius": 0.01
+        - "center": [0.07, 0.03, 0.0]
+          "radius": 0.01
+        - "center": [0.07, 0.06, 0.0]
+          "radius": 0.01
+        - "center": [0.07, -0.03, 0.0]
+          "radius": 0.01
+        - "center": [0.07, -0.06, 0.0]
+          "radius": 0.01
+    fr_link7:
+        - "center": [0.009, 0.001, 0.0]
+          "radius": 0.02
+        - "center": [0.057, -0.009, 0.0]
+          "radius": 0.01
+        - "center": [0.037, -0.007, -0.002]
+          "radius": 0.01
+    fr_link8:
+        - "center": [0.063, 0.015, 0.0]
+          "radius": 0.01
+        - "center": [0.044, 0.013, 0.0]
+          "radius": 0.01
+        - "center": [0.005, -0.0, 0.0]
+          "radius": 0.02
+    right_camera:
+        - "center": [0.0, 0.0, 0.0]
+          "radius": 0.02
+    attached_object:
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+        - center: [0.0, 0.0, 0.0]
+          radius: 0.001
+
+    

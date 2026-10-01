@@ -1,0 +1,63 @@
+models/
+!policy/PUMA/PUMA/model/modules/grounding_sam/grounding_dino/groundingdino/models/
+!policy/PUMA/PUMA/model/modules/grounding_sam/grounding_dino/groundingdino/models/**
+data/*
+!data/task_instructions.json
+converted_data/*
+data_lerobot/*
+!data/process_stuck.py
+__pycache__/
+**/checkpoints/
+result/
+envs/curobo
+*.zip
+viewer_show.*
+eval_video/
+**/.DS_Store
+logs/*
+.idea/
+.vscode/
+
+# eval result
+eval_result/
+
+# Local task scratch (demos, sweeps, snapshots, probes)
+tmp/*
+!tmp/.gitkeep
+/final_task_demos/
+/household_demos/
+/task_config/.interactive_gui_*.yml
+
+# Runtime assets are published separately at Hugging Face. The only checked-in
+# files here are the manifest, downloader, attribution, and embodiment templates.
+assets/*
+!assets/_download.py
+!assets/asset_manifest.json
+!assets/ASSET_NOTICE.md
+!assets/robodyna-assets-v1.sha256
+
+# Embodiment configuration templates and the compact URDF are versioned. Meshes
+# are delivered by the runtime asset archive.
+!assets/embodiments/
+assets/embodiments/*
+!assets/embodiments/ur5-wsg/
+assets/embodiments/ur5-wsg/*
+!assets/embodiments/ur5-wsg/ur5_wsg_gripper.urdf
+!assets/embodiments/ur5-wsg/*.yml
+!assets/embodiments/aloha-agilex/
+assets/embodiments/aloha-agilex/*
+!assets/embodiments/aloha-agilex/*.yml
+
+policy/weights/*
+
+envs/curobo/*
+
+.vscode
+/config.json
+
+/*.json*
+/*.txt
+
+# Auto-generated OpenVLA Dynamic35 builders
+policy/openvla-oft/datasets/*_clean_level1_builder.py
+!policy/openvla-oft/datasets/generate_dynamic35_builders.py

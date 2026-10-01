@@ -1,0 +1,83 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/cook_food__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  cook_food:
+    scene_id: 0
+    food_type: random
+    randomize_layout: true
+    stove_pose: random
+    burner: random
+    range_xy:
+    - 0.1
+    - 0.14
+    range_center_xy:
+    - 0.0
+    - 0.14
+    board_y: -0.02
+    plate_y: -0.12
+    cook_steps: 3076
+    cook_speed_jitter: 0.2
+    success_window_sec: 4.0
+    shutoff_lead: 0.58
+    cook_intensity: 0.7
+    range_scale_mult: 1.0
+    pan_scale: 1.0
+    skillet_id: 2
+    skillet_handle_yaw: 3.1416
+    place_dx: 0.0
+    place_dy: 0.0
+    plate_scale: 0.715
+    board_scale_mult: 0.0975
+    knob_contact_radius: 0.06
+save_failed_cases: false
+use_dynamic: false
+save_data: false

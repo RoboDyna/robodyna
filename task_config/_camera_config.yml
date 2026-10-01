@@ -1,0 +1,38 @@
+L515:
+  fovy: 45
+  w: 320
+  h: 180
+
+Large_L515:
+  fovy: 45
+  w: 640
+  h: 360
+
+D435:
+  fovy: 37
+  w: 320
+  h: 240
+
+Large_D435:
+  fovy: 37
+  w: 640
+  h: 480
+
+# Wider third-person demo view (visualize_task_scene / episode preview videos).
+Demo_D435:
+  fovy: 42
+  w: 640
+  h: 480
+
+# Interactive / experiment capture of demo_camera. Same fovy/aspect as Demo_D435,
+# 4x the pixels (1280x960; 4:3). Head camera stays D435 320x240.
+Demo_HD:
+  fovy: 42
+  w: 1280
+  h: 960
+
+# Optional head-camera HD (same framing as D435). Not used by default capture.
+HD_D435:
+  fovy: 37
+  w: 1280
+  h: 960

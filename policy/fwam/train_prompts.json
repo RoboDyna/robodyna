@@ -1,0 +1,145 @@
+{
+ "_note": "canonical eval instruction -> instruction FastWAM was trained on (HF robodyna-benchmark-v2 @ 0dd81b41, pre prompt-realignment). Verified: all 35 hash into the run's text_embeds_cache/robodyna.",
+ "map": {
+  "Turn the stove on so the milk rises, then shut it off before the milk overflows.": {
+   "task": "boil_milk",
+   "train_instruction": "In the KitchenS scene (microwave left, cooking range right, no sink), turn the stove on so the white milk in the saucepan boils and rises; shut the stove off once the milk reaches the red ring inside the pot, without letting it spill over the rim."
+  },
+  "Grasp and pull out cuboid(s) once it(they) emerge from the box.": {
+   "task": "catch_cuboid",
+   "train_instruction": "watch the hole board and, when the cuboid pops up, use the arm on that side to close the gripper around it before it retracts"
+  },
+  "Place the pillow under the tipping mug so it lands softly instead of hitting the table.": {
+   "task": "catch_cup",
+   "train_instruction": "A random cup tips and rolls off a deep wall shelf from the start; push a pillow under its predicted landing so it drops on the pillow instead of the table."
+  },
+  "Press the matching-color button to trap the target marble into the box.": {
+   "task": "catch_marbles_trapdoors",
+   "train_instruction": "press the matching-color button so the target marble falls through that trapdoor into the lower box; at most 3 door opens total across all colors then all doors lock"
+  },
+  "Place the pillow-lined basket under the falling object so it does not hit the table.": {
+   "task": "catch_mouse_object_drop",
+   "train_instruction": "A mouse scurries along a wall shelf and knocks one fragile object off; pick and place a pillow-lined basket under its landing so it does not hit the table."
+  },
+  "Place the blue cup in front of the ramp to catch the red ball before hitting the table.": {
+   "task": "catch_ramp_ball",
+   "train_instruction": "a red ball rolls down the ramp and falls off the front edge; predict where it lands and hold the cup there to catch the red ball; ignore any blue distractor ball"
+  },
+  "Move the bowl to left and right by pressing the corresponding keys to catch the red ball.": {
+   "task": "catch_shelf_marble",
+   "train_instruction": "hold the left or right action key to slide the bowl along the belt and catch the marble rolling off the tilted shelves"
+  },
+  "Push the blue box in front of the ramp behind the red line to catch the red ball.": {
+   "task": "catch_valley_ball",
+   "train_instruction": "a red ball drops onto a curved valley ramp, rolls, then flies off past a red line; use the matching arm to push a small open box beyond the red safety line and catch the red ball without touching it; ignore any black distractor ball"
+  },
+  "Wipe the spreading coffee spill with the sponge before it reaches the laptop.": {
+   "task": "clean_table",
+   "train_instruction": "A coffee mug tips over on one side of the table and the spill spreads toward a laptop on the opposite side. Use the sponge to wipe up the spill before it reaches the laptop."
+  },
+  "Stamp red and green tiles while skipping black outliers.": {
+   "task": "control_quality",
+   "train_instruction": "press the matching red or green key for each colored tile while it stops under the stamp, but press neither key for black distractor tiles"
+  },
+  "Shut the stove off at the target doneness (food starts in the pan).": {
+   "task": "cook_food",
+   "train_instruction": "In the KitchenS scene (no sink or microwave), the stove is already on. Raw food starts on a chopping board. Put the food into the pan, cook to the food's ideal doneness (meat medium, sausage dark-red, onion browned), then turn the stove knob off. Success is adequate doneness after the stove is off; leave the food in the pan."
+  },
+  "Shut the stove off at the target doneness using the pie timer (food starts in the pan).": {
+   "task": "cook_food_timer",
+   "train_instruction": "In the KitchenS scene (no sink or microwave), the stove is already on. Raw food starts on a chopping board. Put the food into the pan, cook while watching the pie timer (green then yellow at the food's ideal doneness), then turn the stove knob off so the timer stops. Success is adequate doneness after the stove is off; leave the food in the pan."
+  },
+  "Cook the steak on the pan to the target doneness and return it to the board.": {
+   "task": "cook_meat",
+   "train_instruction": "pick up the raw meat from the cutting board, place it on the pan, and cook it to the target doneness with the cook key; meat may stay on the pan"
+  },
+  "Cook the steak using the pie timer (green\u2192yellow\u2192red) and return it to the board.": {
+   "task": "cook_meat_timer",
+   "train_instruction": "pick up the raw meat from the cutting board, place it on the pan, and cook it to the target doneness with the cook key while watching the pie timer; meat may stay on the pan"
+  },
+  "Dispense gummies and move the bowl so only the target-colored gummies are collected.": {
+   "task": "dispense_gummy",
+   "train_instruction": "use the arrow keys to move the bowl along the belt and collect only the target-colored gummies from the two tubes"
+  },
+  "Guide the ball through the target hole of the rotating sorter into the container.": {
+   "task": "drop_ball_hole",
+   "train_instruction": "Drop the rectangular, triangular and cylindrical blocks into their matching holes on the rotating sorter cap of the bucket, releasing each block as its matching hole rotates beneath it."
+  },
+  "Fill the marked glass jar to the target line.": {
+   "task": "fill_coffee_jar",
+   "train_instruction": "press the button on the coffee dispenser to fill the glass jar to the target red ring"
+  },
+  "Hit the moving target's yellow center while avoiding blockers.": {
+   "task": "hit_target",
+   "train_instruction": "grasp the dart and attach it inside the yellow center square of the moving target board"
+  },
+  "Drop the marble into an allowed wagon of the circling train.": {
+   "task": "load_train",
+   "train_instruction": "pick up the ball in front of you and drop it into an allowed wagon of the toy train as it circles past on the rail"
+  },
+  "Tip the chopping-board vegetables into the pot without dropping any pieces.": {
+   "task": "make_soup",
+   "train_instruction": "In the KitchenS scene, the stove is already on. Lift a chopping board holding a random subset of produce (2\u20134 distinct pieces from carrot, broccoli, mushroom, onion, tomato), carry it level over a pot of water without dropping any pieces, and tip the board to pour them into the pot."
+  },
+  "Tilt the shelves to route the marble through the maze into the bowl.": {
+   "task": "marble_shelf_maze",
+   "train_instruction": "press the left or right button to tilt the shelf the marble is on so it rolls down the zig-zag shelves and lands in the bowl"
+  },
+  "Fill the marked jar to the target ring from the oil nozzle.": {
+   "task": "measure_ingredient",
+   "train_instruction": "push the glass jar under the oil nozzle, press the green key to latch oil on (key turns red), press again to stop at the target red ring (key turns green); spilling oil outside the jar fails"
+  },
+  "Pack red and green apples from the belts into their matching baskets.": {
+   "task": "pack_fruits",
+   "train_instruction": "pick red and green apples as they appear on the moving belts and pack them into the matching breadbaskets"
+  },
+  "Pick the good apple and place it in the basket while ignoring spoiled fruit.": {
+   "task": "pick_ripe_apple",
+   "train_instruction": "two apples hang on the tree; pick the one that ripens red and drop it into the moving basket, ignore the yellowing one"
+  },
+  "Place the block onto the belt so it rides upright into the exit bowl.": {
+   "task": "place_block_belt",
+   "train_instruction": "pick up the tall block from the table and set it onto the moving conveyor belt so it rides to the end without tipping over"
+  },
+  "Strike the red ball into an allowed pocket without robot contact.": {
+   "task": "play_billiard",
+   "train_instruction": "hold the cue stick and strike the red ball into the target pocket without touching the ball with the robot"
+  },
+  "Pour beer into the mug, then click the finish bell. Overflow fails.": {
+   "task": "pour_beer",
+   "train_instruction": "In the KitchenS bar scene, press and hold the beer tap button to pour into the beer mug under the spout. Flow runs while the button is held and stops when released. Foaminess of the stream rises the longer the button stays held and resets when released. Pause to settle foam, then release fully. Click the finish bell beside the tap to signal done \u2014 success or failure is scored on that press. Overflow fails."
+  },
+  "Punch every present tile on both belts.": {
+   "task": "punch_dual_holes",
+   "train_instruction": "run two parallel belts at once, each arm pressing its own button to hole-punch the pages on its belt at the right moment until both belts are cleared"
+  },
+  "Place the cup in the slot between the yellow tools on the belt.": {
+   "task": "put_cup_belt",
+   "train_instruction": "hold the cup, wait for a gap in the swaying curtain to open over the empty moving slot, then pass the cup through and set it into the slot"
+  },
+  "Place the goalkeeper to block the ball from entering the goal.": {
+   "task": "save_goal",
+   "train_instruction": "place the goalkeeper in the green zone before the red line to keep the ball out of the goal"
+  },
+  "Sort red and green apples into matching bins; send rotten apples to the dump.": {
+   "task": "sort_apples_belt",
+   "train_instruction": "watch apples arrive on the conveyor belt and hold the button to route each apple into the basket matching its color; for a rotten brown apple hold both buttons to dump it into the garbage bin; release to return the plank to horizontal"
+  },
+  "Place the gripper-shaped bridge so it stops the rolling ball before the ball falls off the table.": {
+   "task": "stop_ball",
+   "train_instruction": "A table-tennis ball rolls off a wall shelf onto the table and toward an edge; use the matching hand to stop it so it stays on the table (a touch that then falls off still fails)."
+  },
+  "Hold the ping-pong bat so the red ball hits its circular head before the table.": {
+   "task": "stop_valley_ball",
+   "train_instruction": "a red ball drops onto a curved valley ramp, rolls, then flies off; pick up the ping-pong bat from its holder and hold it in the air so the red ball hits the bat head; ignore any black distractor ball"
+  },
+  "Trap the scurrying bug under the glass box.": {
+   "task": "trap_bug",
+   "train_instruction": "Trap the bug that scurries out from under the bookshelf by placing the glass trap box over it"
+  },
+  "Whack both moles from above without touching a rabbit.": {
+   "task": "whack_moles",
+   "train_instruction": "watch the hole board and press each mole from above when it pops up; touched moles turn green; do not touch any rabbit"
+  }
+ }
+}

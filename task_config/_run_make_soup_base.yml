@@ -1,0 +1,104 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/make_soup__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  make_soup:
+    scene_id: 0
+    burner: left_front
+    pin_burner: false
+    range_xy:
+    - 0.18
+    - 0.14
+    range_slots:
+    - current
+    - top_left
+    - top_right
+    range_scale_mult: 1.0
+    randomize_layout: true
+    randomize_background: true
+    clean_background_rate: 0.0
+    water_level: 0.45
+    pot_radius: 0.06786
+    pot_height: 0.0735
+    pot_wall: 0.005
+    board_half:
+    - 0.095
+    - 0.052
+    - 0.01
+    handle_half:
+    - 0.022
+    - 0.024
+    - 0.022
+    board_x: 0.16
+    board_y: -0.14
+    board_center_x_tol: 0.06
+    cube_half: 0.012
+    tomato_radius: 0.012
+    n_veg_min: 2
+    n_veg_max: 4
+    tilt_hold_dot: 0.82
+    tilt_spill_dot: 0.5
+    pour_tip_rad: 0.7
+    knob_contact_radius: 0.06
+    grasp_tcp_tol: 0.045
+    plate_x: -0.18
+    plate_y: -0.08
+    plate_scale: 0.55
+    bread_scale: 1.0
+    wine_x: -0.3
+    wine_y: -0.02
+    wine_scale: 1.0
+    glass_x: -0.22
+    glass_y: -0.16
+    glass_scale: 0.585
+save_failed_cases: false
+use_dynamic: false
+save_data: false

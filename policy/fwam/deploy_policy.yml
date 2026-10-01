@@ -1,0 +1,42 @@
+# Basic experiment configuration (keep unchanged)
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+scenario: default
+instruction_type: canonical
+
+# Add Parameters You Need
+#
+# The frozen/async protocol is NOT selected here -- script/eval_policy.py takes it from
+# --eval_mode_name and charges latency generically around model.get_action, which
+# policy/fwam/deploy_policy.py re-exports for this model.
+
+# FastWAM tree and training run. ckpt_setting stays a short tag for the journals; the weights are
+# addressed by checkpoint_id, which indexes runs/<run>/checkpoints/weights/step_<id:06d>.pt.
+fastwam_root: ./third_party/fastwam  # path to your Fast-WAM checkout
+fastwam_run_dir: runs/FastWAM_RoboDynaV2_gpu-h200-103_20260825_144659
+
+device: cuda
+mixed_precision: bf16
+
+# Actions executed per inference, out of a 32-step predicted chunk. 24 is what upstream's own
+# RoboTwin evaluation uses (configs/sim_robotwin.yaml:32); the 8 in their adapter yml is a default
+# that evaluation overrides. It is not a free knob here: the chunk is back-loaded (indices 0-18 sit
+# at the ~0.004 rad noise floor, 22-31 run 0.06-0.15 rad/step), so anything below ~20 executes only
+# the flat prefix and the arm never leaves home pose. Note also that 24 was calibrated on RoboTwin at
+# 50 Hz (0.48 s open loop); RoboDyna runs at 16.67 Hz, so the same 24 commits 1.44 s. See README.md.
+# scripts/eval/run_fastwam_eval.sh passes --replan_steps explicitly and wins over this value.
+replan_steps: 24
+num_inference_steps: 10
+action_horizon: null
+sigma_shift: null
+
+text_cfg_scale: 1.0
+negative_prompt: ""
+rand_device: cpu
+tiled: false
+# Per-stage inference timing table, printed once per episode. Cheap, and it is the only place the
+# T5/VAE/denoise split is visible.
+timing_enabled: true

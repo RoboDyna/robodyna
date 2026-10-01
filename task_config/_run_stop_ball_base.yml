@@ -1,0 +1,81 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/stop_ball__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  stop_ball:
+    ball_ids:
+    - 0
+    - 1
+    ball_scale_mult: 2.64
+    trophy_scale_mult: 1.0
+    screen_scale_mult: 1.05
+    roll_speed: 0.15
+    roll_speed_jitter_frac: 0.3
+    fall_speed_xy: 0.07
+    shelf_roll_duration: 1.0
+    table_edge_y: -0.3
+    table_x_edge: 0.52
+    roll_angle_max: 0.7
+    intercept_frac: 0.55
+    catch_shelf_clearance: 0.12
+    upright_hold: 0.0
+    handoff_distance: 0.1
+    live_linear_damping: 0.12
+    live_angular_damping: 0.3
+    live_friction: 0.006
+    live_restitution: 0.12
+    settle_speed: 0.025
+    settle_hold_steps: 12
+    max_live_steps: 520
+    arm_side: random
+save_failed_cases: false
+use_dynamic: false
+save_data: false

@@ -1,0 +1,86 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/clean_table__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  clean_table:
+    randomize_layout: true
+    laptop_side: random
+    force_side: false
+    mug_side: random
+    laptop_x: 0.2
+    laptop_y: -0.02
+    mug_laptop_gap_min: 0.3
+    mug_laptop_gap_max: 0.4
+    mug_y_min: -0.1
+    mug_y_max: 0.5
+    mug_x: 0.2
+    mug_y: -0.02
+    sponge_y: -0.18
+    sponge_dx: 0.12
+    sponge_grasp_open: 1.0
+    sponge_grasp_close: 0.25
+    mug_id: 0
+    mug_scale_mult: 0.6
+    laptop_id: 0
+    spill_steps: 3667
+    spill_speed_jitter: 0.3
+    reach_laptop_level: 0.92
+    clean_tol: 0.08
+    post_tip_wait: 40
+    expert_wipe_level: 0.2
+    initial_puddle_level: 0.22
+    spot_contact_extra: 0.004
+    spot_clear_dwell: 6
+    wipe_safe_z: 0.11
+    mug_avoid_margin: 0.025
+save_failed_cases: false
+use_dynamic: false
+save_data: false

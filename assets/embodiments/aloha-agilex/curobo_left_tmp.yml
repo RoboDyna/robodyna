@@ -1,0 +1,88 @@
+robot_cfg:
+  kinematics:
+    use_usd_kinematics: False
+    # usd_path: "FILL_THIS"
+    # usd_robot_root: "/robot"
+    # isaac_usd_path: ""
+    # usd_flip_joints: {}
+    # usd_flip_joint_limits: []
+    urdf_path: ${ASSETS_PATH}/assets/embodiments/aloha-agilex/urdf/arx5_description_isaac.urdf
+    asset_root_path: null
+
+    base_link: "fl_base_link"
+    ee_link: "fl_link6"
+    collision_link_names: 
+      [
+        "fl_base_link",
+        "fl_link1",
+        "fl_link2",
+        "fl_link3",
+        "fl_link4",
+        "fl_link5",
+        "fl_link6",
+        "fl_link7",
+        "fl_link8",
+        "left_camera"
+      ]
+    collision_spheres: ${ASSETS_PATH}/assets/embodiments/aloha-agilex/collision_aloha_left.yml
+    collision_sphere_buffer: 0.004
+    extra_collision_spheres: {}
+    use_global_cumul: True
+    self_collision_ignore:
+      {
+        "fl_base_link": ["fl_link1"],
+        "fl_link1": ["fl_link2"],
+        "fl_link2": ["fl_link3"],
+        "fl_link3": ["fl_link4"],
+        "fl_link4": ["fl_link5", "fl_link7", "left_camera", "fl_link8"],
+        "fl_link5": ["fl_link6", "fl_link7", "left_camera", "fl_link8"],
+        "fl_link6": ["fl_link7", "left_camera", "fl_link8"],
+        "fl_link7": ["fl_link8", "left_camera"]
+      }
+    self_collision_buffer:
+      {
+        "fl_base_link": 0.00,
+        "fl_link1": 0.00,
+        "fl_link2": 0.00,
+        "fl_link3": 0.00,
+        "fl_link4": 0.00,
+        "fl_link5": 0.00,
+        "fl_link6": 0.00,
+        "fl_link7": 0.00,
+        "fl_link8": 0.00,
+        "left_camera": 0.00
+      }
+
+    mesh_link_names: [
+        "fl_base_link",
+        "fl_link1",
+        "fl_link2",
+        "fl_link3",
+        "fl_link4",
+        "fl_link5",
+        "fl_link6",
+        "fl_link7",
+        "fl_link8",
+        "left_camera"
+      ]
+    lock_joints: {"fl_joint7": 0.04, "fl_joint8": 0.04}
+    extra_links: null
+
+    cspace:
+      joint_names: [
+        "fl_joint1",
+        "fl_joint2",
+        "fl_joint3",
+        "fl_joint4",
+        "fl_joint5",
+        "fl_joint6",
+        "fl_joint7",
+        "fl_joint8"
+      ]
+      retract_config: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.04, 0.04]
+      null_space_weight: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      cspace_distance_weight: [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+      max_jerk: 100.0
+      max_acceleration: 3.0
+planner:
+  frame_bias: [-0.2305, -0.297, -0.782]

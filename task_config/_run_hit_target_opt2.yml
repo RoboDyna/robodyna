@@ -1,0 +1,78 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/hit_target__opt2
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  hit_target:
+    arm_side: null
+    blocker_enabled: false
+    blocker_dynamic: true
+    dual_blocker_gap: 0.01
+    board_half_size: 0.075
+    center_half_size: 0.018
+    sway_amp: 0.243
+    sway_period: 900
+    target_speed: 0.65
+    blocker_speed: 0.65
+    speed_jitter_frac: 0.2
+    target_y_offset: 0.05
+    target_center_x: 0.0
+    motion_x_min: -0.272
+    motion_x_max: 0.272
+    blocker_radius: 0.028
+    randomize_blocker_radius: true
+    blocker_radius_jitter: 0.1
+    blocker_thickness: 0.002
+    blocker_y_gap_min: 0.05
+    blocker_y_gap_max: 0.08
+    blocker_z_offset: 0.0
+    blocker_x_offset: 0.0
+save_failed_cases: false
+save_data: false

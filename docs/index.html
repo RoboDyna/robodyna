@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboDyna Benchmark</title>
+  <meta name="description" content="RoboDyna: a benchmark for evaluating robotic manipulation under physically grounded dynamics. 30 dynamic tasks, 3,500 expert demonstrations, paired synchronous and asynchronous evaluation, and human baselines.">
+  <meta property="og:title" content="RoboDyna: Benchmarking Robotic Manipulation under Physically Realistic Dynamics">
+  <meta property="og:description" content="30 physics-governed dynamic dual-arm tasks, 3,500 expert demonstrations, paired sync/async evaluation, and human baselines.">
+  <meta property="og:image" content="figures/fig1_teaser.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" href="robodyna_logo_transparent.png">
+  <style>
+    :root {
+      --ink:#0f2233; --muted:#55687a; --paper:#f6f8fb; --white:#fff; --line:#dde5ec;
+      --navy:#0b2a45; --teal:#139a9a; --orange:#ee8a1d; --blue:#1769aa;
+      --c-traj:#16968a; --c-periodic:#2f6db5; --c-avoid:#d98a1c; --c-state:#3f8f4a; --c-static:#c8433a; --c-household:#7b5ea7;
+      --max:1140px; --radius:14px;
+    }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    html { scroll-behavior:smooth; scroll-padding-top:64px; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.65 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    a { color:var(--blue); }
+    img { max-width:100%; }
+    .wrap { width:min(calc(100% - 32px),var(--max)); margin:0 auto; }
+    .narrow { max-width:820px; }
+    h1,h2,h3,p { margin-top:0; }
+    h2 { font-size:clamp(1.6rem,3vw,2.1rem); line-height:1.15; letter-spacing:-.02em; margin-bottom:12px; }
+    h3 { font-size:1.08rem; margin-bottom:6px; }
+    .kicker { display:block; margin-bottom:6px; color:var(--teal); font-size:.78rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .intro { color:var(--muted); max-width:780px; margin-bottom:26px; }
+    section { padding:64px 0; }
+    section.alt { background:var(--white); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+
+    /* nav */
+    nav.top { position:sticky; top:0; z-index:20; background:rgb(255 255 255 / 88%); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+    nav.top .wrap { display:flex; align-items:center; gap:22px; height:56px; }
+    nav.top .brand { display:flex; align-items:center; font-weight:800; color:var(--navy); text-decoration:none; letter-spacing:-.01em; }
+    nav.top .brand img { display:block; height:34px; width:auto; }
+    nav.top .links { display:flex; gap:18px; margin-left:auto; overflow-x:auto; scrollbar-width:none; }
+    nav.top .links a { color:var(--muted); text-decoration:none; font-size:.92rem; font-weight:600; white-space:nowrap; }
+    nav.top .links a:hover { color:var(--navy); }
+    nav.top .links a.nav-arcade { color:var(--orange); }
+
+    /* hero */
+    .hero { padding:46px 0 30px; text-align:center; background:radial-gradient(ellipse at 50% -10%,#dff1f4 0,#f9fcfd 55%,var(--paper) 100%); }
+    .logo { display:block; width:min(440px,84%); margin:0 auto 18px; }
+    .hero h1 { max-width:900px; margin:0 auto 14px; font-size:clamp(1.55rem,3.6vw,2.5rem); line-height:1.18; letter-spacing:-.025em; }
+    .authors { color:var(--muted); margin-bottom:4px; }
+    .venue { display:inline-block; margin-bottom:22px; padding:4px 14px; border-radius:999px; background:#fff3e4; color:#9a5300; font-size:.92rem; font-weight:700; }
+    .actions { display:flex; flex-wrap:wrap; justify-content:center; gap:10px; }
+    .button { display:inline-flex; align-items:center; gap:7px; padding:9px 18px; border-radius:999px; background:var(--navy); color:#fff; font-weight:700; font-size:.95rem; text-decoration:none; border:1px solid var(--navy); }
+    .button:hover { background:#16446c; color:#fff; }
+    .button.ghost { background:var(--white); color:var(--navy); border-color:var(--line); }
+    .button.ghost:hover { border-color:var(--navy); }
+    .button.disabled { opacity:.55; pointer-events:none; }
+    .button svg { width:17px; height:17px; }
+
+    /* hero video */
+    .hero-video { margin:34px auto 0; max-width:1000px; overflow:hidden; border-radius:16px; background:#000; box-shadow:0 18px 50px rgb(11 42 69 / 22%); }
+    .hero-video video { display:block; width:100%; aspect-ratio:16/9; background:#000; }
+
+    /* stats */
+
+    .abstract p { font-size:1.04rem; }
+    .figure { margin:0; }
+    .figure img { display:block; width:100%; border-radius:var(--radius); border:1px solid var(--line); background:#fff; }
+    .figure figcaption { margin-top:10px; color:var(--muted); font-size:.9rem; }
+
+    /* categories */
+    .cats { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+    .cat { padding:18px 16px; background:var(--white); border:1px solid var(--line); border-top:4px solid var(--c); border-radius:var(--radius); }
+    .cat h3 { color:var(--c); }
+    .cat p { color:var(--muted); font-size:.9rem; margin-bottom:10px; }
+    .cat ul { margin:0; padding-left:18px; font-size:.86rem; }
+
+    .two { display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+    .ladder { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .ladder figure { margin:0; text-align:center; font-size:.82rem; color:var(--muted); }
+    .ladder img { display:block; width:100%; aspect-ratio:1/1; object-fit:cover; object-position:42% 60%; border-radius:10px; border:1px solid var(--line); }
+    .ladder b { display:block; color:var(--ink); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.8rem; margin-top:4px; }
+    .level { display:inline-block; padding:0 6px; border-radius:5px; font-weight:800; font-size:.72rem; color:#fff; }
+    .level.e { background:#5aa469; } .level.m { background:#d9a21c; } .level.h { background:#c8433a; }
+    .house { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .house figure { margin:0; font-size:.84rem; color:var(--muted); }
+    .house img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:10px; border:1px solid var(--line); }
+
+    .cards3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .card { padding:20px; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); }
+    .card p { color:var(--muted); font-size:.92rem; margin-bottom:0; }
+    .eq { margin:10px 0 0; padding:10px 12px; background:var(--paper); border-radius:8px; font-family:"Cambria Math",Cambria,Georgia,serif; font-size:1rem; text-align:center; color:var(--ink); }
+
+    /* results table */
+    .controls { display:flex; flex-wrap:wrap; gap:18px; align-items:center; margin-bottom:14px; }
+    .seg { display:inline-flex; border:1px solid var(--line); border-radius:999px; background:var(--white); padding:3px; }
+    .seg button { border:0; background:transparent; padding:5px 13px; border-radius:999px; font:inherit; font-size:.88rem; font-weight:700; color:var(--muted); cursor:pointer; }
+    .seg button[aria-pressed="true"] { background:var(--navy); color:#fff; }
+    .seg-label { font-size:.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin-right:6px; }
+    .table-scroll { overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--white); }
+    table.res { width:100%; border-collapse:collapse; font-size:.84rem; font-variant-numeric:tabular-nums; }
+    table.res th, table.res td { padding:8px 5px; text-align:center; white-space:nowrap; border-bottom:1px solid var(--line); }
+    table.res thead th { font-size:.78rem; color:var(--muted); font-weight:700; }
+    table.res thead tr:first-child th { color:var(--ink); font-size:.82rem; }
+    table.res th.cat-h { border-bottom:3px solid var(--c); }
+    table.res td:first-child, table.res th:first-child { text-align:left; padding-left:14px; padding-right:8px; }
+    table.res tbody tr:last-child td { border-bottom:0; }
+    table.res td.best { font-weight:800; color:var(--navy); }
+    table.res td.na { color:#b5c1cc; }
+    table.res tr.human td { background:#fbf8ff; }
+    table.res tr.human.first td { border-top:2px solid #d9cdee; }
+    table.res tr.human .bar { background:var(--c-household); }
+    table.res td.sep, table.res th.sep { border-left:1px solid var(--line); }
+    table.res .lat { display:block; color:var(--muted); font-size:.76rem; font-weight:500; }
+    td .cell { position:relative; display:inline-block; min-width:30px; }
+    td .bar { position:absolute; left:0; bottom:-3px; height:3px; border-radius:2px; background:var(--teal); opacity:.55; }
+    .table-note { margin-top:10px; color:var(--muted); font-size:.85rem; }
+
+
+    /* human */
+    .human-nums { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:18px 0; }
+    .human-nums div { padding:14px; text-align:center; border-radius:12px; background:var(--paper); }
+    .human-nums b { display:block; font-size:1.6rem; color:var(--navy); line-height:1.1; }
+    .human-nums span { font-size:.82rem; color:var(--muted); }
+
+    /* gallery */
+    .filters { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+    .filter { padding:6px 13px; border:1px solid var(--line); border-radius:999px; background:var(--white); font:inherit; font-size:.88rem; font-weight:700; color:var(--ink); cursor:pointer; }
+    .filter .dot { display:inline-block; width:9px; height:9px; margin-right:6px; border-radius:50%; background:var(--c,var(--navy)); }
+    .filter[aria-pressed="true"] { border-color:var(--navy); background:var(--navy); color:#fff; }
+    .gallery-meta { display:flex; justify-content:space-between; gap:16px; margin:6px 0 18px; color:var(--muted); font-size:.88rem; }
+    .wrap.wide { width:min(calc(100% - 32px),1360px); }
+    .gallery { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+    .task { display:flex; flex-direction:column; overflow:hidden; background:var(--white); border:1px solid var(--line); border-top:3px solid var(--c); border-radius:12px; }
+    .task img { display:block; width:100%; aspect-ratio:4/3; object-fit:cover; background:#0a1824; }
+    .task .media { position:relative; }
+    .task img { transition:opacity .15s; }
+    .task .spinner { display:none; position:absolute; inset:0; place-items:center; color:#fff; font-size:.75rem; font-weight:700; letter-spacing:.03em; }
+    .task.loading img { opacity:.35; }
+    .task.loading .spinner { display:grid; }
+    .task-body { display:flex; flex-direction:column; gap:6px; flex:1; padding:9px 10px 10px; }
+    .task .tag { align-self:flex-start; padding:0 6px; border-radius:999px; background:color-mix(in srgb,var(--c) 14%,white); color:var(--c); font-size:.6rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+    .task h3 { margin:0; font-size:.88rem; line-height:1.25; }
+    .task .instr { display:none; }
+    .variants { display:flex; flex-wrap:wrap; gap:3px; }
+    .variant { padding:1px 5px; border:1px solid var(--line); border-radius:5px; background:var(--white); font:600 .64rem ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink); cursor:pointer; }
+    .variant[aria-pressed="true"] { background:var(--navy); border-color:var(--navy); color:#fff; }
+    .minibars { display:grid; grid-template-columns:auto 1fr auto; gap:2px 6px; align-items:center; margin-top:auto; padding-top:6px; border-top:1px dashed var(--line); font-size:.66rem; color:var(--muted); }
+    .minibars .track { height:5px; border-radius:4px; background:var(--paper); overflow:hidden; }
+    .minibars .fill { height:100%; background:var(--teal); }
+    .minibars .v { font-variant-numeric:tabular-nums; color:var(--ink); font-weight:700; }
+    .minibars .cap { display:none; }
+
+    .arcade-panel { display:grid; grid-template-columns:1.4fr .6fr; gap:24px; align-items:center; padding:28px; border-radius:16px; background:var(--white); border:1px solid var(--line); border-left:5px solid var(--orange); }
+    .arcade-panel p { color:var(--muted); margin-bottom:0; }
+    .arcade-panel .button { justify-self:end; }
+
+    pre { margin:0; padding:18px 20px; overflow:auto; border-radius:12px; background:#0f2233; color:#e9f2f9; font:.86rem/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    .bib { position:relative; }
+    .copy { position:absolute; top:10px; right:10px; padding:4px 10px; border:1px solid #3b5268; border-radius:7px; background:#1a3248; color:#e9f2f9; font:600 .78rem inherit; cursor:pointer; }
+    footer { padding:30px 0 40px; color:var(--muted); text-align:center; font-size:.9rem; }
+
+    @media (max-width:1200px) { .gallery { grid-template-columns:repeat(4,1fr); } }
+    @media (max-width:960px) {
+      .cats { grid-template-columns:repeat(2,1fr); }
+      .gallery { grid-template-columns:repeat(3,1fr); }
+      .two, .arcade-panel { grid-template-columns:1fr; }
+      .arcade-panel .button { justify-self:start; }
+      .cards3 { grid-template-columns:1fr; }
+    }
+    @media (max-width:640px) {
+      section { padding:44px 0; }
+      .cats { grid-template-columns:1fr; }
+      .gallery { grid-template-columns:repeat(2,1fr); }
+      .ladder { grid-template-columns:repeat(2,1fr); }
+      .human-nums { grid-template-columns:1fr; }
+      nav.top .brand { display:none; }
+      nav.top .links { margin-left:0; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="top">
+    <div class="wrap">
+      <a class="brand" href="#"><img src="robodyna_logo_transparent.png" alt="RoboDyna"></a>
+      <div class="links">
+        <a href="#abstract">Abstract</a>
+        <a href="#benchmark">Benchmark</a>
+        <a href="#gallery">Tasks</a>
+        <a href="#results">Results</a>
+        <a href="#human">Human study</a>
+        <a href="#start">Get started</a>
+        <a href="#citation">Citation</a>
+        <a href="arcade.html?v=31" class="nav-arcade">Arcade ↗</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="wrap">
+      <img class="logo" src="robodyna_logo_transparent.png" alt="RoboDyna">
+      <h1>Benchmarking Robotic Manipulation under Physically Realistic Dynamics</h1>
+      <span class="venue">Accepted at the NeurIPS 2026 Workshop on Robot Learning with World Models</span>
+      <div class="actions">
+        <a class="button disabled" href="#" aria-disabled="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>Paper (coming soon)</a>
+        <a class="button" href="https://github.com/robodyna/robodyna">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.7.3 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5z"/></svg>Code</a>
+        <a class="button ghost" href="https://huggingface.co/RoboDyna"><span aria-hidden="true">🤗</span>Data &amp; assets</a>
+        <a class="button ghost" href="arcade.html?v=31">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="6"/><path d="M6 12h4M8 10v4"/><circle cx="15.5" cy="11" r=".6" fill="currentColor"/><circle cx="17.5" cy="13" r=".6" fill="currentColor"/></svg>Arcade</a>
+      </div>
+
+      <div class="hero-video">
+        <video controls autoplay muted loop playsinline preload="metadata" poster="videos/robodyna_overview_poster.jpg">
+          <source src="videos/robodyna_overview.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <section id="abstract" class="alt">
+      <div class="wrap narrow abstract">
+        <span class="kicker">Abstract</span>
+        <h2>Acting in a world that does not wait</h2>
+        <p>Object manipulation in the dynamic real world requires understanding how the environment functions and evolves, and acting accordingly. Existing benchmarks, however, do not adequately address these needs. Physics-oriented benchmarks evaluate predictive fidelity but not closed-loop action. Dynamic robotic manipulation benchmarks often use simplified, physically implausible object motions, limiting evaluation of reasoning and action under realistic dynamics. Evaluation is also typically synchronized, freezing the environment during inference and making computation time irrelevant to task outcomes.</p>
+        <p>To this end, we propose <b>RoboDyna</b>, a benchmark for evaluating the physical understanding and action capabilities of manipulation policies in dynamic scenes. RoboDyna comprises 20 conceptual dynamic tasks spanning five capability categories, with simple objects and minimal scene clutter, under a two-factor difficulty design, and 10 household tasks that instantiate the same capabilities in visually and semantically richer simulated real-world environments. RoboDyna provides 3,500 expert demonstrations, paired synchronous and asynchronous evaluation protocols, metrics for task success and partial completion, and interactive tools for human baseline evaluation.</p>
+        <p>Evaluating vision-language-action models and a world-action model across 5.4K episodes, we find that all policies achieve success rates below 20%, revealing substantial limitations in dynamic manipulation. The world-action model captures simple physical dynamics but struggles with complex interactions, and its prediction fidelity does not consistently align with task success. Sync–async comparisons show that inference latency flips 5–12% of episode outcomes while changing average success rates by at most 3%. Human baselines substantially outperform all policies under matched conditions.</p>
+      </div>
+    </section>
+
+    <section id="benchmark">
+      <div class="wrap">
+        <span class="kicker">The benchmark</span>
+        <h2>RoboDyna at a glance</h2>
+        <p class="intro">Every task is a language-conditioned dual-arm manipulation problem in SAPIEN. The scene evolves continuously under gravity, friction, collision and contact, independently of the policy.</p>
+        <figure class="figure">
+          <img src="figures/fig1_teaser.png" alt="Overview of RoboDyna: capability categories, sync vs async, complex physics, conceptual and household tasks, human baselines, and difficulty levels">
+          <figcaption><b>Fig. 1.</b> 20 conceptual tasks in five capability categories and 10 household tasks with physics-governed motion; four difficulty settings per conceptual task; paired sync/async protocols; and a human study on the same seeds.</figcaption>
+        </figure>
+
+        <h3 style="margin-top:48px;font-size:1.3rem">Five capability categories</h3>
+        <p class="intro">Each category isolates one physical competence. Four conceptual tasks per category use minimal scenes with only task-relevant objects.</p>
+        <div class="cats">
+          <article class="cat" style="--c:var(--c-traj)"><h3>Trajectory prediction</h3><p>Anticipate where a moving object will be, including motion redirected by contact or collision.</p><ul><li>Catch Ramp Ball</li><li>Catch Valley Ball</li><li>Stop Valley Ball</li><li>Save Goal</li></ul></article>
+          <article class="cat" style="--c:var(--c-periodic)"><h3>Periodic pattern</h3><p>Identify recurring motion and time actions to short opportunity windows.</p><ul><li>Catch Marbles Trapdoors</li><li>Catch Cuboid</li><li>Drop Ball Hole</li><li>Whack Moles</li></ul></article>
+          <article class="cat" style="--c:var(--c-avoid)"><h3>Dynamic avoidance</h3><p>Plan robot motion around independently moving objects and obstacles.</p><ul><li>Put Cup Belt</li><li>Hit Target</li><li>Load Train</li><li>Place Block Belt</li></ul></article>
+          <article class="cat" style="--c:var(--c-state)"><h3>State transition</h3><p>Track changes not captured by pose alone, such as ripeness, doneness or availability.</p><ul><li>Cook Meat Timer</li><li>Pick Ripe Apple</li><li>Sort Apples Belt</li><li>Pack Fruits</li></ul></article>
+          <article class="cat" style="--c:var(--c-static)"><h3>Static to dynamic</h3><p>Anticipate motion the robot itself triggers in an initially static scene by pushing, striking or releasing.</p><ul><li>Catch Shelf Marble</li><li>Dispense Gummy</li><li>Marble Shelf Maze</li><li>Play Billiard</li></ul></article>
+        </div>
+
+        <div class="two" style="margin-top:48px">
+          <div>
+            <h3 style="font-size:1.3rem">Composable difficulty</h3>
+            <p class="intro" style="margin-bottom:16px">Each conceptual task has four conditions: <code>base</code> <span class="level e">easy</span>, <code>var1</code> and <code>var2</code> <span class="level m">medium</span>, each adding one task-specific variation, and <code>var1+2</code> <span class="level h">hard</span>, which composes both and is <b>withheld from training</b>. In <i>Load Train</i>, the robot drops a ball into a wagon of a circling train.</p>
+            <div class="ladder">
+              <figure><img src="figures/load_train_base.jpg" alt="Load train base"><b>base</b>any wagon</figure>
+              <figure><img src="figures/load_train_var1.jpg" alt="Load train var1"><b>var1</b>red wagon only</figure>
+              <figure><img src="figures/load_train_var2.jpg" alt="Load train var2"><b>var2</b>tunnels occlude</figure>
+              <figure><img src="figures/load_train_var12.jpg" alt="Load train var1+2"><b>var1+2</b>both</figure>
+            </div>
+          </div>
+          <div>
+            <h3 style="font-size:1.3rem">Household tasks</h3>
+            <p class="intro" style="margin-bottom:16px">Ten office and kitchen scenes test the same capabilities with clutter, richer semantics, and everyday physics beyond rigid bodies: rising liquids, overflow, dispensing and spreading spills.</p>
+            <div class="house">
+              <figure><img src="figures/boil_milk_source.png" alt="Boil milk scene">Boil Milk: switch off the stove before the rising milk overflows.</figure>
+              <figure><img style="object-position:right top" src="figures/mouse_drop_source.png" alt="Catch mouse object drop scene">Catch Mouse Object Drop: predict which object the mouse knocks off, then catch it.</figure>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <section id="gallery" class="alt">
+      <div class="wrap wide">
+        <span class="kicker">Task gallery</span>
+        <h2>All 30 tasks</h2>
+        <p class="intro">Switch a task's condition to see each variation and how the three policies did on it (success rate, averaged over sync and async, 10 seeds each). Hover a card for its language instruction.</p>
+        <div class="filters" id="filters"></div>
+        <div class="gallery-meta"><span id="gallery-count" aria-live="polite"></span><span>Demos load as you scroll.</span></div>
+        <div id="task-gallery" class="gallery"></div>
+      </div>
+    </section>
+
+    <section id="results">
+      <div class="wrap">
+        <span class="kicker">Results</span>
+        <h2>No policy solves even one in five episodes</h2>
+        <p class="intro">We fine-tune two vision-language-action models (π<sub>0.5</sub>, X-VLA) and one world-action model (FastWAM) on all 3,500 demonstrations, then evaluate each from a single checkpoint. Easy is <code>base</code>, Medium averages <code>var1</code> and <code>var2</code>, and Hard is the held-out <code>var1+2</code> composition. Human participants played the Hard conditions and the household tasks.</p>
+        <div class="controls">
+          <div><span class="seg-label">Metric</span><span class="seg" id="seg-metric"><button data-v="0" aria-pressed="true">Success rate</button><button data-v="1" aria-pressed="false">Progress score</button></span></div>
+          <div><span class="seg-label">Protocol</span><span class="seg" id="seg-proto"><button data-v="sync" aria-pressed="false">Sync</button><button data-v="async" aria-pressed="false">Async</button><button data-v="avg" aria-pressed="true">Average</button></span></div>
+        </div>
+        <div class="table-scroll"><table class="res" id="res-table"></table></div>
+        <p class="table-note">Bold marks the best policy in each column. Mean inference latency is shown under each policy name. Overall covers Easy, Medium and household, and excludes Hard. Humans are scored on success only, in real time, so the protocol switch does not apply to them.</p>
+
+      </div>
+    </section>
+
+    <section id="human" class="alt">
+      <div class="wrap two">
+        <div>
+          <span class="kicker">Human study</span>
+          <h2>People are still far ahead</h2>
+          <p class="intro">Twelve participants played the same tasks on the same seeds: the hard <code>var1+2</code> condition for conceptual tasks, and household tasks at base. They used two control modes. <b>Teleoperation</b> drives the arm with the keyboard, like a policy. <b>Scene-interactive</b> control acts on objects directly with point and click, removing the cost of low-level control.</p>
+          <div class="human-nums">
+            <div><b>77.1%</b><span>humans, interactive</span></div>
+            <div><b>50.2%</b><span>humans, teleoperation</span></div>
+            <div><b>14%</b><span>best policy, same conditions</span></div>
+          </div>
+          <p class="intro" style="margin-bottom:0">The gap between control modes is largest on time-critical tasks. Policies do best where tracking a visible object is enough, and fail on periodic patterns, which humans solve 75% of the time.</p>
+        </div>
+        <figure class="figure"><img loading="lazy" src="figures/robodyna_human_radar.png" alt="Human vs policy success by category"><figcaption><b>Fig. 2.</b> Success rate by category for humans and policies on the human-evaluated slice.</figcaption></figure>
+      </div>
+    </section>
+
+
+    <section id="arcade">
+      <div class="wrap">
+        <div class="arcade-panel">
+          <div>
+            <h2>RoboDyna Arcade</h2>
+            <p>Play all 30 RoboDyna tasks in your browser with the same point-and-click controls our human participants used. Five episodes per game, then see your success rate next to π<sub>0.5</sub>, X-VLA and FastWAM. Simplified 2D physics, not the SAPIEN benchmark.</p>
+          </div>
+          <a class="button" href="arcade.html?v=31">Launch the arcade →</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="start" class="alt">
+      <div class="wrap two">
+        <div>
+          <span class="kicker">Get started</span>
+          <h2>Install and explore</h2>
+          <pre><code>git clone https://github.com/robodyna/robodyna.git
+cd robodyna
+bash script/install_robodyna.sh
+conda activate robodyna
+# Download the minimal runtime asset package (~1.2 GiB)
+bash script/_download_assets.sh
+
+# Explore the benchmark interactively
+python interactive/robodyna_gui.py</code></pre>
+        </div>
+        <div id="citation">
+          <span class="kicker">Citation</span>
+          <h2>BibTeX</h2>
+          <div class="bib">
+            <button class="copy" type="button" id="copy-bib">Copy</button>
+            <pre><code id="bibtex">@inproceedings{li2026robodyna,
+  title     = {Benchmarking Robotic Manipulation under
+               Physically Realistic Dynamics},
+  author    = {Li, Zhiyuan and Yang, Ruiheng and Zhao, Xuan
+               and Rasouli, Amir},
+  booktitle = {NeurIPS 2026 Workshop on Robot Learning
+               with World Models},
+  year      = {2026}
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">RoboDyna · built on RoboTwin 2.0 / DOMINO and SAPIEN 3.0.3</div></footer>
+
+  <script>
+    // ---------- category metadata ----------
+    const CATS = {
+      traj:      { label: "Trajectory prediction", color: "var(--c-traj)" },
+      periodic:  { label: "Periodic pattern",      color: "var(--c-periodic)" },
+      avoid:     { label: "Dynamic avoidance",     color: "var(--c-avoid)" },
+      state:     { label: "State transition",      color: "var(--c-state)" },
+      static:    { label: "Static to dynamic",     color: "var(--c-static)" },
+      household: { label: "Household",             color: "var(--c-household)" }
+    };
+
+    // ---------- aggregate results (paper Table: SR/PS by category) ----------
+    // columns: traj E/M, periodic E/M, avoid E/M, state E/M, static E/M, conceptual E/M, household, overall
+    const POLICIES = [
+      { name: "π<sub>0.5</sub>", lat: "109 ms", d: {
+        sync:  [[.23,.26],[.23,.28],[.35,.38],[.13,.18],[.35,.45],[.43,.49],[.20,.32],[.11,.28],[.10,.22],[.10,.17],[.25,.32],[.20,.28],[.06,.21],[.19,.28]],
+        async: [[.25,.28],[.18,.22],[.20,.29],[.16,.21],[.38,.46],[.34,.42],[.10,.29],[.08,.24],[.10,.21],[.09,.19],[.21,.31],[.17,.26],[.07,.22],[.16,.27]],
+        avg:   [[.24,.27],[.20,.25],[.28,.33],[.14,.20],[.36,.46],[.38,.45],[.15,.30],[.09,.26],[.10,.21],[.09,.18],[.23,.31],[.18,.27],[.07,.21],[.18,.27]] } },
+      { name: "X-VLA", lat: "156 ms", d: {
+        sync:  [[.18,.19],[.16,.18],[.08,.10],[.03,.06],[.20,.20],[.08,.12],[.25,.30],[.18,.27],[.05,.12],[.03,.09],[.15,.18],[.09,.15],[.07,.13],[.11,.15]],
+        async: [[.28,.32],[.19,.21],[.05,.08],[.01,.07],[.28,.29],[.14,.18],[.23,.30],[.19,.29],[.05,.14],[.03,.06],[.18,.22],[.11,.16],[.06,.14],[.12,.18]],
+        avg:   [[.23,.26],[.17,.20],[.06,.09],[.02,.07],[.24,.24],[.11,.15],[.24,.30],[.18,.28],[.05,.13],[.03,.08],[.16,.20],[.10,.15],[.07,.13],[.11,.16]] } },
+      { name: "FastWAM", lat: "236 ms", d: {
+        sync:  [[.05,.07],[.08,.10],[.00,.06],[.00,.03],[.00,.00],[.00,.00],[.20,.31],[.19,.30],[.18,.22],[.06,.09],[.09,.13],[.07,.10],[.02,.08],[.06,.11]],
+        async: [[.03,.04],[.09,.12],[.00,.04],[.00,.03],[.00,.02],[.00,.01],[.05,.27],[.06,.24],[.18,.21],[.08,.10],[.05,.11],[.05,.10],[.05,.15],[.05,.11]],
+        avg:   [[.04,.05],[.08,.10],[.00,.05],[.00,.03],[.00,.01],[.00,.00],[.12,.29],[.12,.27],[.18,.21],[.07,.10],[.07,.12],[.06,.10],[.04,.11],[.06,.11]] } }
+    ];
+    const GROUPS = [
+      { label: "Traj. pred.", c: "var(--c-traj)", cat: "traj" },
+      { label: "Periodic", c: "var(--c-periodic)", cat: "periodic" },
+      { label: "Dyn. avoid.", c: "var(--c-avoid)", cat: "avoid" },
+      { label: "State trans.", c: "var(--c-state)", cat: "state" },
+      { label: "Static→dyn.", c: "var(--c-static)", cat: "static" },
+      { label: "Concept. avg", c: "var(--navy)", cat: null }
+    ];
+    // Human success rates on the human-evaluated slice (conceptual var1+2, household base); paper Fig. human radar.
+    const HUMANS = [
+      { name: "Human", sub: "teleoperation", hard: { traj: .27, periodic: .42, avoid: .48, state: .48, static: .53 }, household: .61 },
+      { name: "Human", sub: "interactive", hard: { traj: .67, periodic: .75, avoid: .75, state: .88, static: .62 }, household: .84 }
+    ];
+    const POLICY_KEYS = ["pi05", "xvla", "fwam"];
+    const state = { metric: 0, proto: "avg" };
+    const mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+
+    // Hard (var1+2) per category, computed from the per-task table.
+    function hardScore(pk, cat, proto, metric) {
+      const vals = Object.values(TASKS).filter(t => (cat ? t.cat === cat : t.cat !== "household")).map(t => {
+        const r = t.res["var1+2"][pk];
+        return proto === "avg" ? (r.sync[metric] + r.async[metric]) / 2 : r[proto][metric];
+      });
+      return mean(vals);
+    }
+    function policyRow(i) {
+      const p = POLICIES[i], d = p.d[state.proto], m = state.metric, pk = POLICY_KEYS[i];
+      const cells = [];
+      GROUPS.forEach((g, gi) => { cells.push(d[2 * gi][m], d[2 * gi + 1][m], hardScore(pk, g.cat, state.proto, m)); });
+      cells.push(d[12][m], d[13][m]);
+      return cells;
+    }
+    function humanRow(h) {
+      const cells = [];
+      const hard = Object.values(h.hard);
+      GROUPS.forEach(g => { cells.push(null, null, state.metric === 0 ? (g.cat ? h.hard[g.cat] : mean(hard)) : null); });
+      cells.push(state.metric === 0 ? h.household : null, null);
+      return cells;
+    }
+    function renderTable() {
+      const t = document.getElementById("res-table");
+      let h = "<thead><tr><th rowspan='2'>Policy</th>";
+      GROUPS.forEach(g => { h += `<th class="cat-h sep" style="--c:${g.c}" colspan="3">${g.label}</th>`; });
+      h += `<th class="cat-h sep" style="--c:var(--c-household)">Household</th><th class="cat-h sep" style="--c:var(--navy)">Overall</th>`;
+      h += "</tr><tr>";
+      GROUPS.forEach(() => { h += "<th class='sep'>Easy</th><th>Med.</th><th>Hard</th>"; });
+      h += "<th class='sep'>Base</th><th class='sep'>All</th></tr></thead><tbody>";
+      const rows = POLICIES.map((_, i) => policyRow(i));
+      const best = rows[0].map((_, c) => Math.max(...rows.map(r => r[c])));
+      const cell = (x, c, isBest, extra = "") => {
+        const sep = c % 3 === 0 || c >= 18 ? " sep" : "";
+        if (x == null) return `<td class="na${sep}${extra}">–</td>`;
+        const v = Math.round(x * 100) / 100;
+        return `<td class="${isBest ? "best" : ""}${sep}${extra}"><span class="cell">${v.toFixed(2)}<span class="bar" style="width:${Math.round(x * 100)}%"></span></span></td>`;
+      };
+      rows.forEach((r, i) => {
+        h += `<tr><td><b>${POLICIES[i].name}</b><span class="lat">${POLICIES[i].lat}</span></td>`;
+        r.forEach((x, c) => { h += cell(x, c, Math.round(x * 100) === Math.round(best[c] * 100) && x > 0); });
+        h += "</tr>";
+      });
+      HUMANS.forEach((hm, i) => {
+        h += `<tr class="human${i === 0 ? " first" : ""}"><td><b>${hm.name}</b><span class="lat">${hm.sub}</span></td>`;
+        humanRow(hm).forEach((x, c) => { h += cell(x, c, false); });
+        h += "</tr>";
+      });
+      t.innerHTML = h + "</tbody>";
+    }
+    function bindSeg(id, key, parse) {
+      document.querySelectorAll(`#${id} button`).forEach(b => b.addEventListener("click", () => {
+        state[key] = parse(b.dataset.v);
+        document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+        renderTable();
+      }));
+    }
+    bindSeg("seg-metric", "metric", Number);
+    bindSeg("seg-proto", "proto", String);
+
+    // ---------- task gallery ----------
+    const TASKS = {"catch_ramp_ball":{"cat":"traj","instruction":"Place the blue cup in front of the ramp to catch the red ball before hitting the table.","res":{"base":{"pi05":{"async":[0.5,0.5],"sync":[0.4,0.4]},"xvla":{"async":[0.3,0.4],"sync":[0.1,0.1]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.1,0.1],"sync":[0.2,0.2]},"xvla":{"async":[0.2,0.2],"sync":[0.1,0.1]},"fwam":{"async":[0.3,0.3],"sync":[0.2,0.2]}},"var2":{"pi05":{"async":[0.5,0.5],"sync":[0.4,0.4]},"xvla":{"async":[0.5,0.5],"sync":[0.2,0.2]},"fwam":{"async":[0.1,0.1],"sync":[0.2,0.2]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.4,0.4],"sync":[0.2,0.2]},"fwam":{"async":[0.0,0.0],"sync":[0.1,0.1]}}}},"catch_valley_ball":{"cat":"traj","instruction":"Push the blue box in front of the ramp behind the red line to catch the red ball.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.5,0.5],"sync":[0.4,0.4]},"fwam":{"async":[0.1,0.1],"sync":[0.2,0.2]}},"var1":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.1,0.1],"sync":[0.2,0.2]},"fwam":{"async":[0.1,0.1],"sync":[0.1,0.1]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.2,0.2],"sync":[0.2,0.2]},"fwam":{"async":[0.0,0.05],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.1,0.1],"sync":[0.0,0.0]},"xvla":{"async":[0.4,0.4],"sync":[0.4,0.4]},"fwam":{"async":[0.2,0.2],"sync":[0.1,0.1]}}}},"stop_valley_ball":{"cat":"traj","instruction":"Hold the ping-pong bat so the red ball hits its circular head before the table.","res":{"base":{"pi05":{"async":[0.3,0.3],"sync":[0.4,0.4]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.2,0.2],"sync":[0.2,0.2]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.1,0.1],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.4,0.4],"sync":[0.7,0.7]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.5,0.5],"sync":[0.4,0.4]},"xvla":{"async":[0.0,0.0],"sync":[0.1,0.1]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"save_goal":{"cat":"traj","instruction":"Place the goalkeeper to block the ball from entering the goal.","res":{"base":{"pi05":{"async":[0.2,0.33],"sync":[0.1,0.25]},"xvla":{"async":[0.3,0.39],"sync":[0.2,0.27]},"fwam":{"async":[0.0,0.06],"sync":[0.0,0.06]}},"var1":{"pi05":{"async":[0.0,0.26],"sync":[0.1,0.24]},"xvla":{"async":[0.3,0.38],"sync":[0.2,0.3]},"fwam":{"async":[0.0,0.11],"sync":[0.0,0.06]}},"var2":{"pi05":{"async":[0.2,0.31],"sync":[0.2,0.47]},"xvla":{"async":[0.2,0.32],"sync":[0.4,0.44]},"fwam":{"async":[0.1,0.16],"sync":[0.1,0.2]}},"var1+2":{"pi05":{"async":[0.5,0.62],"sync":[0.3,0.5]},"xvla":{"async":[0.0,0.24],"sync":[0.1,0.24]},"fwam":{"async":[0.1,0.15],"sync":[0.1,0.21]}}}},"catch_marbles_trapdoors":{"cat":"periodic","instruction":"Press the matching-color button to trap the target marble into the box.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"catch_cuboid":{"cat":"periodic","instruction":"Grasp and pull out cuboid(s) once it(they) emerge from the box.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.1,0.1],"sync":[0.1,0.1]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.0,0.15],"sync":[0.0,0.05]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.05]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.3,0.3],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.24],"sync":[0.0,0.16]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.1],"sync":[0.0,0.1]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"drop_ball_hole":{"cat":"periodic","instruction":"Guide the ball through the target hole of the rotating sorter into the container.","res":{"base":{"pi05":{"async":[0.5,0.5],"sync":[0.6,0.6]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.2,0.2],"sync":[0.1,0.1]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.2,0.2],"sync":[0.3,0.35]},"xvla":{"async":[0.1,0.1],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.3,0.3],"sync":[0.3,0.4]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"whack_moles":{"cat":"periodic","instruction":"Whack both moles from above without touching a rabbit.","res":{"base":{"pi05":{"async":[0.3,0.65],"sync":[0.8,0.9]},"xvla":{"async":[0.1,0.2],"sync":[0.2,0.3]},"fwam":{"async":[0.0,0.15],"sync":[0.0,0.25]}},"var1":{"pi05":{"async":[0.6,0.72],"sync":[0.6,0.8]},"xvla":{"async":[0.0,0.12],"sync":[0.1,0.23]},"fwam":{"async":[0.0,0.2],"sync":[0.0,0.2]}},"var2":{"pi05":{"async":[0.0,0.1],"sync":[0.0,0.15]},"xvla":{"async":[0.0,0.07],"sync":[0.1,0.07]},"fwam":{"async":[0.0,0.05],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.1],"sync":[0.0,0.07]},"xvla":{"async":[0.0,0.06],"sync":[0.0,0.1]},"fwam":{"async":[0.0,0.07],"sync":[0.0,0.05]}}}},"put_cup_belt":{"cat":"avoid","instruction":"Place the cup in the slot between the yellow tools on the belt.","res":{"base":{"pi05":{"async":[0.9,0.95],"sync":[0.8,0.9]},"xvla":{"async":[0.3,0.3],"sync":[0.4,0.4]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.7,0.85],"sync":[0.6,0.78]},"xvla":{"async":[0.0,0.0],"sync":[0.1,0.1]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.7,0.78],"sync":[0.8,0.88]},"xvla":{"async":[0.3,0.35],"sync":[0.1,0.15]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.9,0.9],"sync":[0.5,0.75]},"xvla":{"async":[0.0,0.0],"sync":[0.2,0.3]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"hit_target":{"cat":"avoid","instruction":"Hit the moving target's yellow center while avoiding blockers.","res":{"base":{"pi05":{"async":[0.3,0.3],"sync":[0.3,0.3]},"xvla":{"async":[0.3,0.3],"sync":[0.1,0.1]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.1,0.1],"sync":[0.2,0.2]},"xvla":{"async":[0.1,0.1],"sync":[0.1,0.1]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.2,0.2]},"xvla":{"async":[0.0,0.02],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.2,0.2]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"load_train":{"cat":"avoid","instruction":"Drop the marble into an allowed wagon of the circling train.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.1,0.15],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.07],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.1,0.1],"sync":[0.1,0.15]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.03],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.1,0.27],"sync":[0.0,0.21]},"fwam":{"async":[0.0,0.03],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.07],"sync":[0.0,0.11]},"fwam":{"async":[0.0,0.07],"sync":[0.0,0.0]}}}},"place_block_belt":{"cat":"avoid","instruction":"Place the block onto the belt so it rides upright into the exit bowl.","res":{"base":{"pi05":{"async":[0.3,0.6],"sync":[0.3,0.6]},"xvla":{"async":[0.4,0.4],"sync":[0.3,0.3]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.3,0.65],"sync":[0.6,0.8]},"xvla":{"async":[0.1,0.15],"sync":[0.1,0.15]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.8,0.9],"sync":[0.9,0.9]},"xvla":{"async":[0.5,0.53],"sync":[0.2,0.25]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.5,0.65],"sync":[0.2,0.45]},"xvla":{"async":[0.1,0.17],"sync":[0.1,0.33]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"cook_meat_timer":{"cat":"state","instruction":"Cook the steak using the pie timer (green\u2192yellow\u2192red) and return it to the board.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.0,0.0],"sync":[0.1,0.1]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"pick_ripe_apple":{"cat":"state","instruction":"Pick the good apple and place it in the basket while ignoring spoiled fruit.","res":{"base":{"pi05":{"async":[0.0,0.33],"sync":[0.0,0.33]},"xvla":{"async":[0.0,0.17],"sync":[0.0,0.2]},"fwam":{"async":[0.0,0.35],"sync":[0.0,0.35]}},"var1":{"pi05":{"async":[0.0,0.35],"sync":[0.1,0.47]},"xvla":{"async":[0.0,0.28],"sync":[0.0,0.25]},"fwam":{"async":[0.0,0.35],"sync":[0.0,0.3]}},"var2":{"pi05":{"async":[0.2,0.38],"sync":[0.3,0.4]},"xvla":{"async":[0.0,0.12],"sync":[0.0,0.12]},"fwam":{"async":[0.0,0.35],"sync":[0.0,0.3]}},"var1+2":{"pi05":{"async":[0.0,0.35],"sync":[0.1,0.4]},"xvla":{"async":[0.0,0.2],"sync":[0.0,0.2]},"fwam":{"async":[0.0,0.42],"sync":[0.0,0.4]}}}},"sort_apples_belt":{"cat":"state","instruction":"Sort red and green apples into matching bins; send rotten apples to the dump.","res":{"base":{"pi05":{"async":[0.4,0.82],"sync":[0.8,0.93]},"xvla":{"async":[0.9,0.97],"sync":[1.0,1.0]},"fwam":{"async":[0.2,0.72],"sync":[0.8,0.9]}},"var1":{"pi05":{"async":[0.3,0.78],"sync":[0.3,0.72]},"xvla":{"async":[0.7,0.9],"sync":[0.7,0.85]},"fwam":{"async":[0.5,0.85],"sync":[1.0,1.0]}},"var2":{"pi05":{"async":[0.1,0.38],"sync":[0.1,0.53]},"xvla":{"async":[0.8,0.95],"sync":[0.7,0.93]},"fwam":{"async":[0.0,0.38],"sync":[0.5,0.79]}},"var1+2":{"pi05":{"async":[0.1,0.49],"sync":[0.1,0.47]},"xvla":{"async":[0.5,0.88],"sync":[0.6,0.88]},"fwam":{"async":[0.0,0.51],"sync":[0.3,0.62]}}}},"pack_fruits":{"cat":"state","instruction":"Pack red and green apples from the belts into their matching baskets.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.06],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.05],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.09]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.02]}}}},"catch_shelf_marble":{"cat":"static","instruction":"Move the bowl to left and right by pressing the corresponding keys to catch the red ball.","res":{"base":{"pi05":{"async":[0.3,0.3],"sync":[0.3,0.3]},"xvla":{"async":[0.2,0.2],"sync":[0.2,0.2]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.3,0.3],"sync":[0.3,0.3]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.18]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.2,0.2],"sync":[0.2,0.2]},"xvla":{"async":[0.2,0.2],"sync":[0.3,0.3]},"fwam":{"async":[0.2,0.2],"sync":[0.3,0.3]}}}},"dispense_gummy":{"cat":"static","instruction":"Dispense gummies and move the bowl so only the target-colored gummies are collected.","res":{"base":{"pi05":{"async":[0.0,0.17],"sync":[0.0,0.12]},"xvla":{"async":[0.0,0.35],"sync":[0.0,0.28]},"fwam":{"async":[0.7,0.82],"sync":[0.7,0.88]}},"var1":{"pi05":{"async":[0.0,0.1],"sync":[0.0,0.07]},"xvla":{"async":[0.2,0.4],"sync":[0.2,0.5]},"fwam":{"async":[0.5,0.67],"sync":[0.5,0.66]}},"var2":{"pi05":{"async":[0.0,0.14],"sync":[0.0,0.04]},"xvla":{"async":[0.0,0.07],"sync":[0.0,0.07]},"fwam":{"async":[0.0,0.05],"sync":[0.0,0.07]}},"var1+2":{"pi05":{"async":[0.0,0.09],"sync":[0.0,0.07]},"xvla":{"async":[0.0,0.23],"sync":[0.0,0.22]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.09]}}}},"marble_shelf_maze":{"cat":"static","instruction":"Tilt the shelves to route the marble through the maze into the bowl.","res":{"base":{"pi05":{"async":[0.1,0.38],"sync":[0.1,0.45]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.3,0.53],"sync":[0.3,0.53]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.1,0.47],"sync":[0.2,0.45]},"xvla":{"async":[0.0,0.03],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.35],"sync":[0.0,0.42]},"xvla":{"async":[0.0,0.03],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"play_billiard":{"cat":"static","instruction":"Strike the red ball into an allowed pocket without robot contact.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var1":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}},"var2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.1,0.1],"sync":[0.0,0.0]}},"var1+2":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.03]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"boil_milk":{"cat":"household","instruction":"Turn the stove on so the milk rises, then shut it off before the milk overflows.","res":{"base":{"pi05":{"async":[0.1,0.1],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.1,0.1]},"fwam":{"async":[0.1,0.1],"sync":[0.0,0.0]}}}},"catch_cup":{"cat":"household","instruction":"Place the pillow under the tipping mug so it lands softly instead of hitting the table.","res":{"base":{"pi05":{"async":[0.2,0.2],"sync":[0.2,0.2]},"xvla":{"async":[0.1,0.1],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"catch_mouse_object_drop":{"cat":"household","instruction":"Place the pillow-lined basket under the falling object so it does not hit the table.","res":{"base":{"pi05":{"async":[0.1,0.7],"sync":[0.1,0.72]},"xvla":{"async":[0.0,0.6],"sync":[0.0,0.4]},"fwam":{"async":[0.0,0.4],"sync":[0.0,0.45]}}}},"clean_table":{"cat":"household","instruction":"Wipe the spreading coffee spill with the sponge before it reaches the laptop.","res":{"base":{"pi05":{"async":[0.0,0.03],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.1,0.1],"sync":[0.2,0.25]}}}},"cook_food_timer":{"cat":"household","instruction":"Shut the stove off at the target doneness using the pie timer (food starts in the pan).","res":{"base":{"pi05":{"async":[0.1,0.1],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"make_soup":{"cat":"household","instruction":"Tip the chopping-board vegetables into the pot without dropping any pieces.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.03]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"measure_ingredient":{"cat":"household","instruction":"Fill the marked jar to the target ring from the oil nozzle.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"pour_beer":{"cat":"household","instruction":"Pour beer into the mug, then click the finish bell. Overflow fails.","res":{"base":{"pi05":{"async":[0.0,0.0],"sync":[0.0,0.0]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.0]},"fwam":{"async":[0.0,0.0],"sync":[0.0,0.0]}}}},"stop_ball":{"cat":"household","instruction":"Place the gripper-shaped bridge so it stops the rolling ball before the ball falls off the table.","res":{"base":{"pi05":{"async":[0.0,0.45],"sync":[0.0,0.45]},"xvla":{"async":[0.5,0.65],"sync":[0.6,0.7]},"fwam":{"async":[0.1,0.4],"sync":[0.0,0.1]}}}},"trap_bug":{"cat":"household","instruction":"Trap the scurrying bug under the glass box.","res":{"base":{"pi05":{"async":[0.2,0.6],"sync":[0.3,0.7]},"xvla":{"async":[0.0,0.0],"sync":[0.0,0.07]},"fwam":{"async":[0.2,0.47],"sync":[0.0,0.0]}}}}};
+    const COND = ["base", "var1", "var2", "var1+2"];
+    const MEDIA_COND = { base: "default", var1: "opt1", var2: "opt2", "var1+2": "opt1+2" };
+    const MEDIA_OVERRIDES = {
+      catch_cuboid: { default: "default_transparent_1cuboid_head.gif", opt1: "opt1_catch_two_cuboids_head.gif", opt2: "opt2_opaque_1cuboid_head.gif", "opt1+2": "opt1+2_catch_two_cuboids_opaque_head.gif" },
+      put_cup_belt: { default: "default_left_head.gif", opt1: "opt1_left_head.gif", opt2: "opt2_left_head.gif", "opt1+2": "opt1+2_left_head.gif" },
+      place_block_belt: { opt1: "opt1_moving_bowl_head.gif", opt2: "opt2_blocker_head.gif", "opt1+2": "opt1+2_moving_bowl_blocker_head.gif" },
+      drop_ball_hole: { default: "cylinder_default_head.gif", opt1: "cylinder_opt1_head.gif", opt2: "cylinder_opt2_head.gif", "opt1+2": "cylinder_opt1+2_head.gif" }
+    };
+    const HOUSEHOLD_MEDIA = {
+      trap_bug: "success1_head.gif", boil_milk: "success_head.gif", pour_beer: "success_head.gif", cook_food_timer: "success_head.gif",
+      measure_ingredient: "success1_head.gif", make_soup: "success_head.gif", catch_cup: "success1_head.gif",
+      catch_mouse_object_drop: "success_head.gif", stop_ball: "success_head.gif", clean_table: "success1_head.gif"
+    };
+    const POLICY_SHORT = { pi05: "π0.5", xvla: "X-VLA", fwam: "FastWAM" };
+
+    const title = id => id.split("_").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+    function mediaFor(task, cond) {
+      if (TASKS[task].cat === "household") return `final_task_demos/${task}/${HOUSEHOLD_MEDIA[task]}`;
+      const m = MEDIA_COND[cond];
+      return `final_task_demos/${task}/${MEDIA_OVERRIDES[task]?.[m] || `${m}_head.gif`}`;
+    }
+    function bars(task, cond) {
+      const r = TASKS[task].res[cond];
+      let h = "";
+      for (const p of ["pi05", "xvla", "fwam"]) {
+        const sr = (r[p].sync[0] + r[p].async[0]) / 2;
+        h += `<span>${POLICY_SHORT[p]}</span><span class="track"><span class="fill" style="display:block;width:${sr * 100}%"></span></span><span class="v">${sr.toFixed(2)}</span>`;
+      }
+      return h + `<span class="cap">Success rate · ${cond}</span>`;
+    }
+    function setCond(card, task, cond) {
+      const img = card.querySelector("img");
+      const src = mediaFor(task, cond);
+      if (img.getAttribute("src") !== src) {
+        card.classList.add("loading");
+        img.onload = img.onerror = () => card.classList.remove("loading");
+        img.src = src;
+      }
+      img.alt = `${title(task)}, ${cond}`;
+      card.querySelector(".minibars").innerHTML = bars(task, cond);
+      card.querySelectorAll(".variant").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.c === cond)));
+    }
+    const gallery = document.getElementById("task-gallery");
+    Object.entries(TASKS).forEach(([task, info]) => {
+      const card = document.createElement("article");
+      card.className = "task";
+      card.dataset.cat = info.cat;
+      card.title = info.instruction;
+      card.style.setProperty("--c", CATS[info.cat].color);
+      const conds = Object.keys(info.res);
+      card.innerHTML = `<div class="media"><img loading="lazy" decoding="async"><span class="spinner">Loading…</span></div>
+        <div class="task-body">
+          <span class="tag">${CATS[info.cat].label}</span>
+          <h3>${title(task)}</h3>
+          <p class="instr">“${info.instruction}”</p>
+          ${conds.length > 1 ? `<div class="variants">${conds.map(c => `<button type="button" class="variant" data-c="${c}">${c}</button>`).join("")}</div>` : ""}
+          <div class="minibars"></div>
+        </div>`;
+      card.querySelectorAll(".variant").forEach(b => b.addEventListener("click", () => setCond(card, task, b.dataset.c)));
+      setCond(card, task, "base");
+      gallery.append(card);
+    });
+
+    const filters = document.getElementById("filters");
+    const count = document.getElementById("gallery-count");
+    [["all", "All tasks", "var(--navy)"], ...Object.entries(CATS).map(([k, v]) => [k, v.label, v.color])].forEach(([k, label, color]) => {
+      const b = document.createElement("button");
+      b.className = "filter"; b.type = "button"; b.dataset.cat = k;
+      b.style.setProperty("--c", color);
+      b.innerHTML = (k === "all" ? "" : "<span class='dot'></span>") + label;
+      b.addEventListener("click", () => showCat(k));
+      filters.append(b);
+    });
+    function showCat(cat) {
+      let n = 0;
+      gallery.querySelectorAll(".task").forEach(c => { const s = cat === "all" || c.dataset.cat === cat; c.hidden = !s; n += s; });
+      count.textContent = `${n} task${n === 1 ? "" : "s"} shown`;
+      filters.querySelectorAll(".filter").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.cat === cat)));
+    }
+    showCat("all");
+    renderTable();
+
+    document.getElementById("copy-bib").addEventListener("click", e => {
+      navigator.clipboard?.writeText(document.getElementById("bibtex").textContent).then(() => {
+        e.target.textContent = "Copied"; setTimeout(() => (e.target.textContent = "Copy"), 1500);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/pick_ripe_apple__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  pick_ripe_apple:
+    ripen_steps: 3600
+    red_window_min: 0.78
+    red_window_max: 0.82
+    red_tolerance: 0.12
+    tree_x: 0.0
+    tree_y: 0.05
+    basket_x: 0.0
+    basket_y: -0.2
+    basket_scale: 1.0
+    two_apples_enabled: false
+    basket_move_enabled: false
+    basket_speed_min: 0.08
+    basket_speed_max: 0.16
+    apple_hang_dx: 0.18
+    branch_z_high: 0.25
+    branch_z_low: 0.2
+    high_branch_side: random
+    trunk_height: 0.5
+    apple_drop_below_branch: 0.042
+    apple_x_jitter: 0.02
+    good_side: random
+    apple_side: random
+    apple_scale_mult: 0.78
+save_failed_cases: false
+save_data: false

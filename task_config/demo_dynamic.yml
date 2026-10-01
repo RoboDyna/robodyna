@@ -1,0 +1,1189 @@
+render_freq: 0
+episode_num: 1
+use_seed: false
+save_freq: 15
+embodiment: [ur5-wsg, ur5-wsg, 0.6] #[aloha-agilex] #
+# Shared episode cutoff (policy take_action_cnt / collection). Applied to every task.
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: true
+check_render_success: false  # only filter on plan-pass success; flip to true for a double-verified production set
+# ---- LeRobot v2.1 export (inline, written alongside the HDF5/mp4 into one combined suite dataset) ----
+export_lerobot: true
+lerobot_root: ./data_lerobot/domino_suite
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+# ---------------------------------------------------------------------------
+# Interactive teleop (interactive GUI robot mode). Read by
+# UniversalRobotControls; collection/eval ignore this block.
+# ---------------------------------------------------------------------------
+interactive_params:
+  xy_speed: 0.3456         # m/s; WASD planar teleop rate (+20%)
+  z_speed: 0.2688          # m/s; Q/E vertical teleop rate (+20%)
+  roll_speed: 1.536        # rad/s; Z/X tip about world +Y (+20%)
+  max_dt: 0.05             # s; clamp on per-frame dt
+  max_lead: 0.0528         # m; max commanded EE lead over achieved pose (+20%)
+  max_joint_speed: 4.8     # rad/s; joint slew cap near singularities (+20%)
+# ---------------------------------------------------------------------------
+# Per-task params, namespaced by task name. This is the SHARED config for the
+# whole suite: invoke as `scripts/collect_data.sh <task> demo_dynamic 0` -- the task arg
+# selects which block below is read (kwags["task_args"][<task>]); all other tasks'
+# blocks are ignored. (debug_dynamic.yml mirrors this block with debug run knobs.)
+# ---------------------------------------------------------------------------
+task_args:
+  catch_marbles_trapdoors:
+    press_hold_steps: 24        # steps to hold button depressed
+    final_dwell_steps: 100      # post-success settle / observe steps
+    button_press_depth: 0.03    # m; EE press depth into button
+    door_open_angle_deg: 95.0   # deg; trapdoor open angle
+    door_open_speed_deg: 220.0  # deg/s; trapdoor swing rate
+    door_open_duration_sec: 0.5 # s; how long a door stays commanded open
+    door_open_once: false       # opt1: true = each door opens only once then locks closed
+    door_open_max: 3            # max open/close cycles total (all doors) when door_open_once=false
+    enable_distractor: false    # opt2: true = spawn black distractor marble (opposite direction)
+    distractor_collide: false   # false = pass through, true = bounce on contact
+    distractor_height_offset: 0.0  # m; keep 0 so distractor matches target marble height (Z)
+    distractor_y_offset: 0.030  # m; parallel Y-lane separation so marbles do not collide
+    distractor_speed: null      # m/s; null = sample ±20% around ball_speed (same as target)
+    distractor_speed_scale_min: 0.8
+    distractor_speed_scale_max: 1.2
+    target_color: null          # null/random = pick 1 of 4 colors; or red|yellow|blue|green | 0..3
+                                # matching left-side trapdoor → left arm; right-side → right arm
+    shuffle_colors: true        # randomize left→right color order of doors + matching keys
+    key_base_half: [0.032, 0.032, 0.005]  # larger/thinner black base under each colored keycap
+    ball_speed: 0.18           # m/s; nominal marble speed; episode speeds sample ±20%
+    ball_speed_scale_min: 0.8   # target marble speed low scale vs ball_speed
+    ball_speed_scale_max: 1.2   # target marble speed high scale vs ball_speed
+    ball_bounce_height: 0.012   # m; vertical bounce amplitude
+    marble_protrude_frac: 0.40  # fraction of marble diameter above catch-bowl rim when settled
+  catch_ramp_ball:
+    # Options (independent toggles; Opt 1+2 can both be on):
+    #   Default — red ball drops at ramp top and rolls straight down
+    #   Opt 1 — wall_bounce_enabled: lateral kick → side-rail rebound
+    #     CLI: --task-arg wall_bounce_enabled=true   or   --option 1
+    #   Opt 2 — enable_distractor: blue distractor on a separate lane
+    #     (catching blue fails)
+    #     CLI: --task-arg enable_distractor=true   or   --option 2
+    # Ramp high end meets the white back wall (ramp_back_y ≈ 0.395).
+    # Balls drop onto the top, then roll with a = g(sinθ − μ cosθ) scaled ~5× slower;
+    # free-flight after the front lip uses PhysX (no lip freeze). Speeds sample
+    # roll_speed × U(scale_min, scale_max) × BALL_SPEED_SCALE(0.2).
+    ramp_angle: 0.0672          # rad; gentler incline (slower roll)
+    ramp_back_y: 0.395          # m; high end world-y (meets back wall)
+    ramp_front_y: 0.02          # m; low end world-y (catch side)
+    ball_radius: 0.018          # m; ball radius
+    randomize_ramp_params: true # ±ramp_param_jitter on ramp_* + ball_radius
+    ramp_param_jitter: 0.10     # ±10%
+    rim_radius: 0.04            # m; cup catch XY tolerance
+    x_span: 0.15                # m; ± playable lateral lane half-width
+    drop_height: 0.08           # m; drop above ramp top surface
+    drop_time: 0.45             # s; kinematic drop onto ramp top
+    wall_bounce_enabled: false  # Opt 1
+    enable_distractor: false    # Opt 2
+    ball_path_mode: straight    # compat; overridden by wall_bounce_enabled
+    angled_path_min_deg: 20.0   # deg; |wall rebound angle| low (Opt 1)
+    angled_path_max_deg: 40.0   # deg; high
+    roll_speed: 0.049           # m/s; pre-scale initial speed (effective ≈ 0.0098)
+    roll_speed_scale_min: 0.8   # per-ball speed low scale (±20%)
+    roll_speed_scale_max: 1.2   # per-ball speed high scale
+    fall_time: 0.55             # s; dwell budget after leaving the edge
+    idle_time_min: 0.3          # s; short pause after drop before grasp
+    idle_time_max: 0.6          # s; high
+    settle_steps: 90            # physics steps after catch settle
+    cup_fwd_clearance: 0.0      # m; unused (landing from ballistic exit)
+    release_clearance: 0.055    # m; PhysX spawn past the front lip
+    ramp_friction: 0.06         # kinetic μ on the incline
+  catch_cuboid:
+    # Option 1: two cuboids from opposite holes; success requires both held.
+    catch_two_cuboids: false
+    # Option 2: opaque colored top lattice (false = glass / see-through).
+    opaque_surface: false
+    randomize_cuboid_color: true  # sample cuboid RGB from cuboid_colors pool
+    # Per-episode rise/fall speed (m/s), sampled uniformly in [min, max].
+    # Mean 0.0294; range scaled ×0.75 from prior [0.0224, 0.056].
+    cuboid_move_speed_min: 0.0168
+    cuboid_move_speed_max: 0.042
+    num_appearances: 5          # how many pop windows per episode
+    pop_steps: 90               # sim steps cuboid stays raised per pop
+    grasp_tol: 0.05             # m; catch offset scale (success uses ~2.5×)
+  stop_ball:
+    # Full-width shelf; ball diameter = open WSG finger gap + 0.5 cm
+    # (~11.5 cm). Rolls off from episode start (reactive) on a randomized
+    # heading — may exit front or a side edge.
+    # Matching left/right arm blocks the ball (no grasp).
+    # Clock/screen/speaker face robot. Desk-sized trophy; screen 1.05×.
+    # Angle / ball pose / shelf décor already randomized; only speed jitters.
+    ball_ids: [0, 1]
+    ball_scale_mult: 2.64       # 11.5 cm diam = WSG open gap 11.0 cm + 0.5 cm
+    trophy_scale_mult: 1.00     # 100% larger than the previous 0.50 scale
+    screen_scale_mult: 1.05     # 30% smaller than prior 1.5×
+    roll_speed: 0.15            # m/s mean; actual = mean × (1 ± roll_speed_jitter_frac)
+    roll_speed_jitter_frac: 0.30
+    fall_speed_xy: 0.07         # m/s; retained horizontal speed during shelf→table fall
+    shelf_roll_duration: 1.00   # s; ball rolls to shelf lip from episode start
+    table_edge_y: -0.30         # m; front edge (past this without stop = fail)
+    table_x_edge: 0.52          # m; |x| past this = fallen off a side
+    roll_angle_max: 0.70        # rad; heading spread from −Y (side exits possible)
+    intercept_frac: 0.55        # fraction along table-roll for the block
+    catch_shelf_clearance: 0.12 # m; min gap between hand and shelf front lip
+    upright_hold: 0.0           # unused; ball releases at play_once start
+    handoff_distance: 0.10      # m; scripted roll ends here, PhysX takes over
+    live_linear_damping: 0.12   # bleeds off the post-contact roll (no bouncing)
+    live_angular_damping: 0.3
+    live_friction: 0.006        # convex-hull ball slides; low mu emulates rolling
+    live_restitution: 0.12      # slight liveliness, no rattling off the gripper
+    settle_speed: 0.025         # m/s; below this the ball counts as at rest
+    settle_hold_steps: 75       # ~0.3 s of rest; a bounce reversal dips near zero
+                                # briefly and must not report a stop mid-bounce
+    max_live_steps: 520         # sim-step budget for the contact + roll-out
+    arm_side: random            # random | left | right
+  catch_cup:
+    # Two-tier deep shelf: cups+plant on upper; kettle/tissue/alarm on lower
+    # (facing robot). One random cup tips/rolls; pillow+arm follow its side.
+    # Cup slots: ≥2 cm X gap, no Y-lane blocking. Roll speed ∈ [base, base*1.5].
+    cup_ids: [0, 1, 2, 3, 5]
+    plant_scale: 0.96           # 2× usual shelf plant (0.48)
+    decor_cup_scale: 0.88       # dynamic companion cups on the shelf
+    rolling_cup_scale: 0.82     # the cup that tips / rolls / falls
+    roll_speed: 0.024           # m/s; lower bound (upper = roll_speed * 1.5)
+    roll_speed_jitter_frac: 0.50
+    tip_duration: 2.20          # s; upright→on-side lean on the shelf
+    upright_hold: 0.0           # s; reactive — tip starts immediately
+    drop_x_jitter: 0.06         # m; lateral drift of drop-off x vs cup start x
+    land_y_min: 0.00            # m; slow PhysX drop contact band (near shelf lip)
+    land_y_max: 0.06            # m; keep exit speed low so cup does not skid off
+    pillow_scale: 1.20          # +20% cushion (visual + collision)
+    pillow_start_y: -0.20       # m; on the table, with room behind for the gripper
+    push_step: 0.060            # m; length of each gripper stroke against the face
+    pillow_catch_xy_tol: 0.05   # m; XY pad — pillow must cover the landing
+    pillow_mass: 0.35           # kg; cushion the gripper shoves across the table
+    post_place_dwell: 12        # sim steps after catch/miss before episode ends
+  catch_mouse_object_drop:
+    # Two-tier deep shelf: random cup/wineglass/beer/wine + plant/mug on upper
+    # (mouse-width X gaps, no Y-lane blocking); tissue + random office props on
+    # lower. Basket spawns at x≈0 with Y ∈ [basket_start_y, +10 cm]. Mouse
+    # picks one target and shoves it; speed = mean × (1 ± jitter).
+    n_objects: 4
+    n_lower_extra: 2            # random office props on lower shelf (plus tissue)
+    obj_x_gap_min: 0.06         # m; clear gap between fragile footprints
+    mouse_speed: 0.10           # m/s mean; slow = mean×(1−jitter), fast = mean×(1+jitter)×fast_side_mult
+    mouse_speed_jitter_frac: 0.30
+    mouse_speed_fast_side_mult: 1.20  # +20% on the faster-side cap (1.3 → 1.56)
+    mouse_start_gap_min: 0.15   # m; prefer a start end this far from the target
+    basket_start_y: -0.28       # m; lower end of basket Y band (near robot)
+    basket_start_y_span: 0.10   # m; upper = basket_start_y + span
+    catch_xy_tol: 0.035         # m; XY pad for object-in-basket success
+    post_place_dwell: 14        # sim steps after catch/miss before episode ends
+  catch_shelf_marble:
+    # Options (independent toggles; Opt 1+2 can both be on):
+    #   Default — marble pauses on the top shelf until a bowl key is pressed
+    #   Opt 1 — reactive_marble: marble starts moving/falling from episode start
+    #     CLI: --task-arg reactive_marble=true   or   --option 1
+    #   Opt 2 — oscillating_shelf_enabled: one random non-top shelf sweeps -x..+x
+    #     CLI: --task-arg oscillating_shelf_enabled=true   or   --option 2
+    n_shelves_min: 4            # per-ep random shelf count low (set n_shelves to pin a fixed count)
+    n_shelves_max: 7            # per-ep random shelf count high
+    shelf_length: 0.20          # m; shelf length along belt (x)
+    randomize_shelf_params: true  # ±shelf_param_jitter on shelf_length + roll_speed
+    shelf_param_jitter: 0.10      # ±10%
+    stack_height: 0.39          # m; bottom→top shelf span; level_gap = stack_height/(n_shelves-1)
+    tilt_min_deg: 15.0          # deg; per-shelf tilt magnitude min; direction is
+    tilt_max_deg: 45.0          # independently randomized per shelf, see load_actors
+    bottom_clearance: 0.22      # m; bottom shelf underside → belt
+    ball_radius: 0.014          # m; marble radius
+    roll_speed: 0.175           # m/s; scripted slide speed (non-reactive / Default)
+    reactive_marble: false      # Opt 1: true = marble drops at play_once start (not on key-press)
+    reactive_roll_speed: 0.045  # m/s; slide speed used only when Opt 1 (reactive_marble) is on
+    oscillating_shelf_enabled: false  # Opt 2: true = one random non-top shelf sweeps -x..+x
+    oscillating_shelf_period: 3.0     # s; Opt 2 full sweep cycle (episode-absolute clock)
+    # oscillating_shelf_index: 1      # optional: pin which shelf oscillates (0/top rejected; default: random 1..N-1)
+    bowl_radius: 0.05           # m; bowl catch geometry
+    bowl_speed: 0.18            # m/s; bowl slide speed while key held
+    bowl_catch_xy_tol: 0.035    # m; marble-in-bowl XY success tol
+    key_x_left: -0.26           # m; left (green) bowl-key x
+    key_x_right: 0.26           # m; right (blue) bowl-key x
+    key_y: -0.13                # m; both keys’ y
+    layout_pad_from_key: 0.20   # m; shelves+belt in [key_left−pad, key_right+pad] (+5 cm/side vs 0.15)
+    max_stack_span: 0.65        # m; soft cap on shelf-centre span (fits the wider pad window)
+  catch_valley_ball:
+    # Valley / ball physics plus a procedural open-box catcher (~48% of
+    # 062_plasticbox base1). The robot *pushes* it into place (catch_cup-style
+    # closed-gripper slide); no end teleport.
+    # Opt 1 wall_bounce_enabled / Opt 2 enable_distractor / mirror.
+    param_jitter: 0.10
+    length_jitter: 0.05
+    ramp_half_width: 0.1625     # 0.125 * 1.3; platform y-width +30%
+    ramp_thickness: 0.012
+    ramp_center_y: 0.08
+    ramp_valley_x: -0.14
+    ramp_valley_height: 0.025
+    down_run: 0.324
+    down_rise: 0.094
+    up_run: 0.2592
+    up_rise: 0.085
+    curve_segments: 16
+    rail_height: 0.055
+    rail_thickness: 0.006
+    ball_radius: 0.018
+    ball_mass: 0.50
+    # Ball starts on-lane just before the first board (not an aerial hold).
+    drop_height: 0.006
+    drop_time: 0.20
+    ball_entry_standoff: 0.012   # m; upstream of ramp entry along travel (x)
+    ball_entry_clearance: 0.006  # m; above ramp surface at entry
+    wall_bounce_enabled: false
+    enable_distractor: false
+    mirrored: null
+    random_mirror: true
+    ball_path_mode: straight
+    angled_path_min_deg: 15.0
+    angled_path_max_deg: 25.0
+    drop_forward_angle_min_deg: -8.0
+    drop_forward_angle_max_deg: 12.0
+    initial_forward_speed: 0.105
+    physics_max_steps: 1200
+    red_line_gap: 0.05
+    landing_gap: 0.15
+    roll_time_min: 4.0
+    roll_time_max: 7.0
+    roll_acceleration: 0.25
+    launch_speed: 0.385
+    idle_time_min: 1.0
+    idle_time_max: 2.0
+    settle_steps: 150
+    start_freeze_s: 0.0         # s; no start hold — ball drops immediately
+    catcher_model: custom_catch_box
+    bowl_id: 0
+    bowl_scale_mult: 1.0
+    # 48% XY of 062_plasticbox base1 (~9.2 cm outer); walls >= 4 cm for the ball
+    bowl_inner_radius: 0.0390   # m; catch success half-width inside the box
+    bowl_outer_radius: 0.0460   # m; outer rim / red-line clearance
+    bowl_height: 0.040          # m; box wall height
+    bowl_mass: 0.12             # kg
+    push_step: 0.045            # m; closed-gripper shove chunk size
+  stop_valley_ball:
+    # Same valley ramp as catch_valley_ball, but grasp a ping-pong bat and hold
+    # it mid-air so the red ball hits the red circular head (table catch unused).
+    # Wider track (+30% y), faster ball. Success: head contact before table.
+    # Opt 1 wall_bounce_enabled / Opt 2 enable_distractor / mirror — same as parent.
+    param_jitter: 0.10
+    ramp_half_width: 0.1625      # 0.125 * 1.3
+    ramp_thickness: 0.012
+    ramp_center_y: 0.08
+    ramp_valley_x: -0.14
+    ramp_valley_height: 0.025
+    ramp_run: 0.324
+    down_run: 0.324
+    down_rise: 0.094
+    up_run: 0.324
+    up_rise: 0.085
+    curve_segments: 16
+    rail_height: 0.055
+    rail_thickness: 0.006
+    ball_radius: 0.018
+    ball_mass: 0.50
+    drop_height: 0.14
+    drop_time: 0.40            # faster drop
+    wall_bounce_enabled: false
+    enable_distractor: false
+    mirrored: null
+    random_mirror: true
+    ball_path_mode: straight
+    angled_path_min_deg: 15.0
+    angled_path_max_deg: 25.0
+    drop_forward_angle_min_deg: -8.0
+    drop_forward_angle_max_deg: 12.0
+    initial_forward_speed: 0.11 # on-ramp roll (−50% from 0.22)
+    initial_forward_speed_min: 0.11
+    initial_forward_speed_max: 0.11
+    platform_length_scale_min: 1.0
+    platform_length_scale_max: 1.0
+    physics_max_steps: 1200
+    red_line_gap: 0.05
+    landing_gap: 0.15
+    roll_time_min: 4.0
+    roll_time_max: 7.0
+    roll_acceleration: 0.25
+    launch_speed: 0.40          # exit flight (−50% from 0.80)
+    idle_time_min: 1.0
+    idle_time_max: 2.0
+    settle_steps: 150
+    start_freeze_s: 0.0         # s; no start hold — ball drops immediately
+    # Small ping-pong bat (circular head + −Y handle) on a facing-ramp holder
+    panel_radius: 0.055         # bat head radius
+    panel_half_thick: 0.006
+    panel_mass: 0.12
+    panel_color: [0.88, 0.20, 0.16]
+    handle_color: [0.62, 0.42, 0.22]
+    handle_half_len: 0.050
+    handle_half_w: 0.010
+    handle_half_t: 0.007
+    holder_height: 0.022
+    panel_spawn_y_min: -0.20   # clear of ramp (ramp y≈[-0.08,+0.24])
+    panel_spawn_y_max: -0.14
+    intercept_flight_frac: 0.42
+    # Parent bowl keys kept so inherited load_actors can construct then hide it
+    catcher_model: 062_plasticbox
+    bowl_id: 1
+    bowl_scale_mult: 0.90
+    bowl_inner_radius: 0.080
+    bowl_outer_radius: 0.095
+    bowl_height: 0.060
+    bowl_mass: 0.35
+  cook_meat:
+    # ---- knobs (change these) ----
+    #   cook_button_enabled  ← Opt 1; true = hold-to-cook (false = latch ON/OFF)
+    #   dual_setup_enabled   ← Opt 2; dual stations, both arms; ≥10 cm clearance
+    #   cook_steps           ← nominal cook duration (steps for doneness 0→1)
+    #   cook_speed_jitter    ← per-ep ± fraction on cook_steps
+    #   max_episode_steps    ← eval / collection episode cutoff (all scenarios)
+    #   key_offset_x         ← |lateral| key offset from pan (same side as station)
+    #   key_y_bias           ← key y relative to pan
+    #   key_press_depth      ← EE press depth onto keycap
+    #   target_doneness_range ← base inclusive success interval; expert aims at midpoint
+    #   target_doneness_range_jitter ← uniform per-episode shift applied to both limits
+    # Combinations (keys always present; green when up, red when down):
+    #   Default            : single + latch ON/OFF (no board return)
+    #   Opt1               : single + hold key to cook
+    #   Opt2               : dual + latch ON/OFF per station
+    #   Opt1+2             : dual + hold-to-cook keys
+    # CLI: --task-arg cook_button_enabled=... / dual_setup_enabled=...
+    #      --option 1 | --option 2
+    cook_steps: 3434            # nominal steps for doneness 0→1 (−20% speed vs prior 2747)
+    cook_speed_jitter: 0.20     # per-ep cook_steps ~ U(nom×(1±0.20))
+    max_episode_steps: 15000    # episode cutoff for default / Opt1 / Opt2 / Opt1+2
+    cook_button_enabled: false  # CHANGE: Opt 1; true = hold-to-cook
+    dual_setup_enabled: false  # CHANGE: Opt 2; true = dual stations (both arms)
+    key_offset_x: 0.14          # CHANGE: m; |lateral| distance of key from pan center
+    key_y_bias: -0.04           # CHANGE: m; key y relative to pan (toward robot)
+    key_press_depth: 0.055      # CHANGE: m; EE press depth onto keycap
+    place_jitter_xy: 0.01       # CHANGE: ±m XY jitter on pan/board (small diversity)
+    place_yaw_lim: 0.175        # CHANGE: ±rad Z yaw on pan/board (~10 deg)
+    target_doneness_range: [0.40, 0.60]  # CHANGE: inclusive success range per steak
+    target_doneness_range_jitter: 0.05   # sample one shift U(-0.05,+0.05) per episode
+    place_dx: 0.0             # nudge from the measured bowl center (mirrored on the left pan)
+    place_dy: 0.0             # nudge from the measured bowl center (+y = away from robot)
+    board_scale_mult: 0.075 # cutting board size (steak starts here; may finish on pan)
+  cook_meat_timer:
+    # Same knobs as cook_meat, plus a per-station pie timer (green→yellow→red).
+    #   timer_radius / timer_n_sections  ← pie disc size / angular sections
+    # Combinations match cook_meat (default / Opt1 / Opt2 / Opt1+2).
+    cook_steps: 3846
+    cook_speed_jitter: 0.20
+    max_episode_steps: 15000     # episode cutoff for all cook_meat_timer scenarios
+    cook_button_enabled: false   # Opt1: hold-to-cook
+    dual_setup_enabled: false    # Opt2 / Opt1+2
+    key_offset_x: 0.14
+    key_y_bias: -0.04
+    key_press_depth: 0.055
+    place_jitter_xy: 0.01
+    place_yaw_lim: 0.175
+    target_doneness_range: [0.45, 0.55]
+    target_doneness_range_jitter: 0.05
+    place_dx: 0.0
+    place_dy: 0.0
+    board_scale_mult: 0.075
+    timer_radius: 0.045
+    timer_n_sections: 36
+  put_cup_belt:
+    curtain_freq: 0.5           # curtain sway cycles per sim-second-equivalent (opt2)
+    curtain_amp: 0.05           # m; lateral sway amplitude of curtain group
+    belt_speed: 0.08            # m/s nominal; each episode samples ±belt_speed_jitter
+    belt_speed_jitter: 0.20     # fraction; speed ~ U((1-j)*nom, (1+j)*nom)
+    curtain_size_jitter: 0.20   # fraction; curtain strip half-size ~ U((1-j), (1+j)) * nominal
+    belt_range: 0.08            # m; yellow sticks travel ±this on the fixed plate
+    placement_tol: 0.05         # m; placement_score / success tolerance
+    gap_tol: 0.06               # m; curtain-gap vs corridor alignment for “open”
+    reach_tol: 0.05             # m; yellow-gap vs corridor alignment for reach
+    moving_component_spacing: 0.10  # m; yellow-stick center spacing (2cm tighter)
+    randomize_slot_spacing: true    # ±jitter on yellow-stick spacing
+    moving_component_spacing_jitter: 0.15  # ±15%
+    blue_curtains_enabled: true # opt1: spawn blue curtain strips
+    blue_curtain_dynamic_enabled: false  # opt2: if true, curtains also sway (implies opt1)
+    random_mirror: true         # randomly mirror across y-axis (x→−x); left arm when mirrored
+    lift_off_only_after_place: false  # if true, only lift after successful place
+    post_place_lift_z: 0.10     # m; +Z lift after place
+  dispense_gummy:
+    # Options (independent toggles):
+    #   Default — alternating target/distractor patterns; discrete belt station hops
+    #     layout_mode: alternating
+    #     belt_continuous_motion: false
+    #   Opt 1 — randomized gummy layout → layout_mode: random
+    #     At most one target at each depth; both tubes may hold distractors.
+    #     CLI: --task-arg layout_mode=random   or   --option 1
+    #   Opt 2 — continuous bowl motion → belt_continuous_motion: true
+    #     Hold arrow key to slide the bowl; episode speed ~ U((1±jitter)*bowl_speed).
+    #     CLI: --task-arg belt_continuous_motion=true   or   --option 2
+    tube_capacity: 4            # slots / gummies per tube
+    layout_mode: random    # Default: alternating; Opt 1: random
+    belt_continuous_motion: true  # Opt 2: false = discrete hops; true = hold-to-slide
+    target_color: yellow        # fixed when randomize_gummy_colors=false
+    randomize_gummy_colors: true  # sample target+distractor from 5 colors (exclusive)
+    # gummy_colors: [red, yellow, purple, green, blue]
+    ball_diameter: 0.03         # m; gummy diameter
+    ball_slot_gap: 0.003        # m; vertical gap between stacked gummies in tube
+    tube_inner_radius: 0.017    # m; must exceed ball radius
+    tube_wall_thickness: 0.003  # m; tube wall thickness
+    tube_bottom_z_offset: 0.075 # m; tube bottom above table
+    tube_center_y: 0.03         # m; shared tube y
+    tube_x_left: -0.06          # m; left tube x
+    tube_x_right: 0.06          # m; right tube x
+    bowl_radius: 0.06           # m; catch bowl radius
+    bowl_align_tol: 0.035       # m; bowl XY under dispenser for catch
+    bowl_catch_z_tol: 0.025     # m; Z band for counting a catch
+    belt_thickness: 0.015       # m; bowl belt slab thickness
+    belt_move_steps: 30         # Default discrete: steps for one station hop
+    bowl_speed: 0.15            # Opt 2 continuous: nominal bowl speed (m/s)
+    belt_speed_jitter: 0.20     # Opt 2: per-episode speed × U(1±jitter)
+    belt_key_x: 0.26            # m; belt-control keys x
+    belt_key_y_left: -0.14      # m; left belt-key y
+    belt_key_y_right: -0.06     # m; right belt-key y
+    key_x: -0.26                # m; dispense-button x
+    key_y: -0.13                # m; dispense-button y
+    dispense_steps: 24          # steps for one dispense animation / drop
+    press_hold_steps: 6         # steps holding dispense key
+    post_press_dwell: 10        # steps after press before next action
+  punch_dual_holes:
+    # Options (independent toggles):
+    #   Opt 1 — missing tile (alternate 1-arm vs 2-arm punches) → missing_tile_mode
+    #     CLI: --task-arg missing_tile_mode=true   or   --option 1
+    #   Opt 2 — continuous belt vs discrete stop-per-tile → belt_continous_motion
+    #     DEFAULT false = discrete: tiles STOP under stamps so both arms press together.
+    #     Pause under stamp capped by tile_pause_s (2.0 s). true = never stop.
+    #     Continuous uses belt_speed × belt_continuous_speed_scale (default 1.6×).
+    #     CLI: --task-arg belt_continous_motion=true   or   --option 2
+    # Tile spacing is always variable (not an option); gaps ~ U(square_gap_min, square_gap_max).
+    n_pages: 4                  # tiles/pages per side
+    punch_tol: 0.035            # m; punch alignment tolerance
+    belt_inward_reach: 0.13     # m; belt travel toward table center
+    belt_outward_scale: 2.0     # outward_reach = inward_reach × scale
+    missing_tile_mode: false   # Opt 1: true = one random missing tile (1- vs 2-arm stops)
+    belt_continous_motion: false # Opt 2: false = discrete stop-per-tile (default); true = continuous
+    tile_pause_s: 2.0           # discrete: seconds the tile holds under the stamp
+    belt_start_freeze_s: 4.0    # s; belt holds still at episode start (arms stay free)
+    tile_pause_jitter: 0.40     # discrete: ±40% per-episode pause around tile_pause_s
+    belt_speed: 0.00014         # m per physics step (discrete, ×0.7 from 0.0002); continuous uses × scale below
+    belt_continuous_speed_scale: 1.6  # Opt 2: multiply belt_speed when continuous
+    square_gap_min: 0.020       # m; variable-spacing min gap (×2 from 0.010 — sparser stamps)
+    square_gap_max: 0.060       # m; variable-spacing max gap (×2 from 0.030)
+  save_goal:
+    # Options (independent toggles):
+    #   Option 1 — field players (bounce) → players_enabled
+    #     CLI: --task-arg players_enabled=true   or   --option 1
+    #   Option 2 — field cover (tunnel) → cover_enabled
+    #     CLI: --task-arg cover_enabled=true     or   --option 2
+    #     ≥10 cm open on ball-drop side; ≥10% of field length open before red line
+    #   Mirror — flip whole field to −x (left gripper)
+    #     CLI: --task-arg mirrored=true
+    #     mirrored: null + random_mirror → 50/50; mirrored true/false forces side
+    players_enabled: false      # Option 1: spawn field players; ball bounces off one toward goal
+    players_max: 2              # Option 1: number of static field players
+    player_thin_scale: 0.70     # Option 1: XY scale vs keeper (0.70 = 30% thinner); blue jersey
+    # player_half_xy / player_half_z: optional overrides (default = ball_radius*thin / keeper_half_z)
+    player_corridor_margin: 0.04 # Option 1: m; keep players clear of ball start
+    player_y_spread: 0.20       # Option 1: m; ±y band about goal_center_y for player spawn
+    player_separation: 0.15     # Option 1: m; min clear gap (edge-to-edge) between players
+    player_max_goal_dist_mult: 2.0 # Option 1: max |goal−player| x = this × green_area_x_len
+    player_goal_face_bias: 0.22 # Option 1: blend face-partner (0) vs face-goal (1)
+    cover_enabled: false        # Option 2: mid-field tunnel/cover; ball enters then exits before red line
+    cover_entry_gap: 0.10       # Option 2: m; min open gap on the ball-drop side
+    cover_exit_gap_frac: 0.10   # Option 2: fraction of (start→red_line) left open before red line
+    # cover_half_y: omit to match red-line half-width (goal_half_w + red_line_y_extra)
+    cover_clearance_z: 0.12     # Option 2: m; clear height under roof
+    cover_wall_t: 0.008         # Option 2: m; side wall thickness
+    cover_roof_t: 0.006         # Option 2: m; roof thickness
+    cover_len_min: 0.10         # Option 2: m; min cover length (x); max = full spannable mid region
+    cover_player_clearance: 0.02 # Option 1+2: m; cover ends this far before nearest player
+    red_line_y_extra: 0.10      # m; red line (and default tunnel) half-width = goal_half_w + this
+    net_enabled: true           # Soccer-style visual net bag behind the goal mouth
+    net_depth: 0.09             # m; net depth behind the posts
+    net_cell: 0.028             # m; approximate mesh cell size
+    net_strand_t: 0.0022        # m; strand thickness
+    mirrored: null              # Mirror: null=random (if random_mirror); true=left/−x; false=right/+x
+    random_mirror: true         # Mirror: when mirrored is null, randomly flip layout per episode
+    ball_speed: 0.04376         # m/s; nominal (×0.8 from 0.05470); episode speed samples ±20% (scale 0.8–1.2)
+    ball_speed_scale_min: 0.8   # low scale vs ball_speed
+    ball_speed_scale_max: 1.2   # high scale vs ball_speed
+    ball_angle_deg_min: -10.0   # deg; path angle vs goal-axis min (straight-shot mode)
+    ball_angle_deg_max: 10.0    # deg; max
+    goal_center_y: 0.05         # m; goal mouth center y (along table)
+    goal_center_y_jitter: 0.0   # m; ± uniform jitter on goal_center_y
+    green_area_x_len: 0.10      # m; keeper placement zone depth (toward field)
+    green_area_y_extra: 0.05    # m; extra half-width beyond goal posts
+    red_line_green_gap: 0.01    # m; clear gap between red line and green field edge
+    red_line_x: 0.11            # m; deadline offset from goal (≥ green_area_x_len + gap)
+    randomize_red_line: true    # sample further toward the field from the min gap
+    red_line_outward_max: 0.05  # m; extra field-side range when randomize_red_line is on
+    goal_x: 0.30                # m; |goal x|; side randomized ±
+    keeper_x: 0.16              # m; |target keeper x| in green zone
+    keeper_goal_clearance: 0.05 # m; keep keeper clear of goal frame
+    keeper_pose_tol: 0.03       # m; place accuracy tol for expert/check
+    keeper_mass: 0.5            # kg; heavy enough to plant upright, light enough to grasp
+  hit_target:
+    # Options (independent toggles):
+    #   Opt 1 — static blocker  →  blocker_enabled   (green disc, fixed at x=0)
+    #   Opt 2 — dynamic blocker →  blocker_dynamic   (red disc, sways with target)
+    #   Opt 1+2: both discs; red (dynamic) sits dual_blocker_gap in front of green (static)
+    # Arm side: null = random left/right each episode (exact mirror about table midline x=0).
+    #   left → −x stick + left arm; target/dyn path stays on x∈[−span,0].
+    #   right → +x stick + right arm; target/dyn path stays on x∈[0,span].
+    #   CLI: --task-arg arm_side=left   or   --task-arg arm_side=right
+    arm_side: null                 # null=random; left|right to force
+    blocker_enabled: false         # Opt 1: green static blocker in front of target
+    blocker_dynamic: false         # Opt 2: red dynamic blocker (sways on stick's half)
+    dual_blocker_gap: 0.010        # Opt 1+2: m; dynamic in front of static (−y)
+    board_half_size: 0.075      # m; outer board half-size (alias board_radius)
+    center_half_size: 0.018     # m; yellow bullseye half-size (alias center_radius)
+    sway_amp: 0.243             # m; half-table outer span (+0.10 m vs 0.143; then ×U(0.7,1.0))
+    sway_period: 900            # sim steps per full sway cycle (jittered)
+    target_speed: 0.65          # base sway-rate mult; per-ep ×U(1±speed_jitter_frac)
+    blocker_speed: 0.65         # Opt 2: match target_speed so opposite phase stays usable
+    speed_jitter_frac: 0.20     # ± fraction for target_speed and blocker_speed
+    target_y_offset: 0.050      # m; added to base target y (~0.08)
+    target_center_x: 0.0        # unused (path is side-mapped from dart_side); kept for compat
+    motion_x_min: -0.272        # m; left outer clamp (+0.10 m vs 0.172)
+    motion_x_max: 0.272         # m; right outer clamp
+    blocker_radius: 0.028       # m; disc radius (30% smaller diameter than 0.040)
+    randomize_blocker_radius: true  # ±blocker_radius_jitter when a blocker is enabled
+    blocker_radius_jitter: 0.10     # ±10%
+    blocker_thickness: 0.002    # m; blocker disc thickness
+    # Distance from target to first/static blocker sampled per episode in [min, max].
+    blocker_y_gap_min: 0.050    # m; Opt1 / Opt2 / Opt1+2 static (5 cm)
+    blocker_y_gap_max: 0.080    # m; (8 cm)
+    blocker_z_offset: 0.0       # m; MUST stay 0 — blocker centers at same height as target center
+    blocker_x_offset: 0.0       # m; lateral offset (static stays at midline + this)
+  load_train:
+    # Options (independent toggles; Opt 1+2 can both be on):
+    #   Default — 3 open wagons (all red) + closed loco; drop into ANY wagon succeeds;
+    #     no tunnel. Ball side is random each episode (left arm if −x, right if +x).
+    #   Opt 1 — target_wagon_mode: pick one wagon at random as the drop target; that
+    #     wagon is red and the other two are gray; success only in the red wagon.
+    #     CLI: --task-arg target_wagon_mode=true   or   --option 1
+    #   Opt 2 — tunnel_enabled: matching arched tunnels on the far and near arcs
+    #     (2–4 wagon spans; near is a 180° mirror of the far tunnel).
+    #     CLI: --task-arg tunnel_enabled=true     or   --option 2
+    #     tunnel_enabled: random still samples with tunnel_prob.
+    #   Opt 1+2 — red target wagon + both tunnels (set both flags).
+    n_wagons: 3                 # open cargo wagons (plus closed loco); default = 3
+    target_wagon_mode: false    # Opt 1: one random red target wagon; others gray
+    tunnel_enabled: false       # Opt 2: far+near arched tunnels (true|false|random)
+    tunnel_prob: 0.55           # P(tunnel) only when tunnel_enabled=random
+    tunnel_n_wagons_min: 2      # Opt 2: tunnel length in wagon-spans (low)
+    tunnel_n_wagons_max: 4      # Opt 2: high
+    tunnel_center_jitter: 0.40  # Opt 2: rad; L/R of 12 o'clock for tunnel center
+    rail_radius: 0.20           # m; circular rail radius
+    randomize_rail_radius: true # one-sided: U[rail_radius, rail_radius*(1+jitter)]
+    rail_radius_jitter: 0.10    # +0..10%
+    train_omega_min: 0.10       # rad/(step·0.01); per-ep speed sample low
+    train_omega_max: 0.18       # high; signed direction random ±
+    ball_side: random           # random|left|right — ball on −x/+x; matching arm grasps
+    ball_lateral_min: 0.07      # m; |x| spawn range low
+    ball_lateral_max: 0.12      # m; high
+    ball_y_jitter: 0.02         # m; ±y around near-rail spawn
+    ball_radius: 0.0195         # m; ball radius (30% larger for reliable pickup)
+    car_floor_h: 0.014          # m; wagon bed thickness
+    car_half_len: 0.045         # m; car half-length along rail
+    car_half_wid: 0.040         # m; car half-width
+    car_arc_spacing: 0.10       # m; arc spacing between car centers
+    car_wall_h: 0.036           # m; wagon wall height
+    ball_side_clearance: 0.11   # m; keep ball clear of passing wagons pre-grasp
+    release_clearance_z: 0.20   # m; release height above rail
+    transport_clearance_z: 0.22 # m; carry height above train
+    pass_angle_offset: 0.22     # rad; side-biased drop station on near arc
+    align_tol: 0.055            # m; wagon under drop before release
+    release_open_steps: 300     # steps during open_gripper / fall lead
+    post_release_steps: 500     # settle steps after release
+    catch_radius: 0.055         # m; ball-in-wagon catch radius
+    drop_reach_tol: 0.030       # m; commanded vs actual drop miss allowed
+    latch_z_max: 0.015          # m; max ball height above bed to latch
+    latch_settle_steps: 12      # consecutive near-floor frames before latch
+  marble_shelf_maze:
+    # Options (independent toggles; Opt 1+2 can both be on):
+    #   Default — after each inter-shelf drop the marble snaps to rest at the shelf centre
+    #   Opt 1 — continuous_ball_motion: landed marble keeps real dynamics (no centre snap)
+    #     CLI: --task-arg continuous_ball_motion=true   or   --option 1
+    #     Alias: natural_ball_stop=true
+    #   Opt 2 — oscillating_bowl_enabled: bowl sweeps left↔right under the maze; last drop
+    #     must be timed so the marble falls into the moving bowl
+    #     CLI: --task-arg oscillating_bowl_enabled=true   or   --option 2
+    n_shelves: 4                # shelf count (2–6 hard max); or use n_shelves_min/max
+    shelf_length: 0.18          # m; shelf length along x (10% wider each side vs 0.15)
+    glass_gap: 0.05             # m; spacing between the two glass panes
+    shelf_half_depth: 0.0125    # m; shelf half-extent in y (into gap)
+    shelf_half_thick: 0.00625   # m; shelf half-thickness in z
+    level_gap: 0.055            # m; nominal vertical spacing between shelf centers
+    level_gap_jitter: 0.35      # ±fractional jitter per gap (renormalized to sum)
+    overlap_min: 0.30           # min overlap as fraction of shelf_length
+    overlap_max: 0.75           # max overlap as fraction of shelf_length
+    bottom_clearance: 0.15      # m; bottom shelf → table clearance
+    ball_radius: 0.012          # m; marble radius
+    roll_off_speed: 0.06        # m/s; horizontal kick when leaving a shelf edge
+    continuous_ball_motion: false  # Opt 1: true = keep rolling after landing (no centre snap)
+    continuous_ball_speed_scale: 0.40   # Opt 1: multiply roll_off_speed (slower release)
+    continuous_tilt_duration_scale: 1.50  # Opt 1: slower tilt / slide-to-edge
+    # natural_ball_stop: false     # legacy alias of continuous_ball_motion
+    oscillating_bowl_enabled: false  # Opt 2: true = bowl oscillates L↔R under the maze
+    oscillating_bowl_period: 3.0     # s; Opt 2 full L→R→L cycle
+    tilt_angle_deg: 45.0        # deg; max shelf tilt toward pressed side
+    tilt_duration_sec: 0.5      # s; tilt/reset duration if smooth_tilt=false
+    smooth_tilt: false          # true: use tilt_speed_deg_per_sec instead of fixed duration
+    tilt_speed_deg_per_sec: 30.0  # deg/s; used only when smooth_tilt=true
+    fall_settle_steps: 160      # physics steps after inter-shelf drop
+    final_fall_settle_steps: 220  # physics steps for final drop into bowl
+    button_x: [-0.18, 0.18]     # button x positions (scaled with wider shelves)
+    button_press_depth: 0.03    # m; EE press depth
+    press_hold_steps: 20        # steps holding button down
+    post_press_dwell: 10        # steps after release before next action
+    bowl_scale_mult: 0.65       # uniform bowl asset scale
+    bowl_catch_radius: 0.032    # m; XY catch tolerance around bowl center
+  pack_fruits:
+    # Options (independent; Opt 1+2 combines both):
+    #   Opt 1 — two_colors_enabled: red + green apples, both baskets
+    #   Opt 2 — distractor_enabled: ≥1 black distractor (never packed)
+    # Default / either opt: one colored apple at a time; apples on either belt.
+    two_colors_enabled: false   # Opt 1: red + green with both baskets
+    distractor_enabled: false   # Opt 2: black distractor fruit on the belts
+    distractor_extra_prob: 0.3  # Opt 2: chance of a second black apple
+    distractor_prob: 0.3        # legacy alias for distractor_extra_prob
+    distractor_color: [0.05, 0.05, 0.05]
+    distractor_min_gap_mult: 2.0
+    n_items_min: 3              # single-color episode: U{min..max} apples
+    n_items_max: 5
+    n_per_color_min: 2          # two-color: each color independently U{min..max}
+    n_per_color_max: 3
+    # n_items: 4                # optional fixed single-color count
+    # n_apple: 2                # optional fixed per-color counts (two-color)
+    # n_green: 3
+    # n_per_color: 3            # legacy: same fixed count for both colors
+    spawn_delay_s: 2.0          # unused (compat); spawn is gated on pack / belt-exit
+    belt_gap: 0.10              # m; gap between the two belts, centered at x=0
+    belt_speed: 0.0008          # m per belt tick nominal; both belts use this
+    belt_speed_jitter: 0.20     # fraction; each ep/side ~ U((1-j)*nom, (1+j)*nom)
+    advance_every: 3            # physics steps between belt ticks
+    spawn_gap: 0.16             # m; min spacing between successive spawns
+    randomize_spawn_gap: true
+    spawn_gap_jitter: 0.20
+    pick_y: 0.24
+    pick_y_end: -0.16
+    pick_station_y: 0.02
+    fruit_scale: 0.80
+    basket_y: 0.0
+    basket_x: 0.34
+    basket_scale: 1.15
+    pick_lift: 0.10
+  pick_ripe_apple:
+    # Default: single good apple (green→red→black) + static basket.
+    # Opt 1 — two_apples_enabled / spoiled_apple_enabled: second yellow→black apple (do not pick)
+    # Opt 2 — basket_move_enabled: basket oscillates between branch-tip X bounds
+    ripen_steps: 3600           # sim steps for ripeness 0→1 (+20% vs 3000; slower ripen)
+    red_window_min: 0.78        # per-ep red target band low (mean ~0.8)
+    red_window_max: 0.82        # high; ~0.8 = vivid red
+    red_tolerance: 0.12         # success: |r_grasp - red_window| must be ≤ this
+    tree_x: 0.0                 # m; tree at table centerline
+    tree_y: 0.05                # m; toward back wall (wall is at y=1; table ~±0.35)
+    basket_x: 0.0               # m; basket start X (then oscillates if Opt 2)
+    basket_y: -0.20             # m; clearance so grasp approach clears the rim
+    basket_scale: 1.0           # 076_breadbasket scale (pack_fruits uses ~1.15)
+    two_apples_enabled: false   # Opt 1: second spoiled apple (alias: spoiled_apple_enabled)
+    basket_move_enabled: false  # Opt 2: ping-pong between tree_x ± apple_hang_dx
+    basket_speed_min: 0.08      # Opt 2: m/s lower bound (per-ep Uniform)
+    basket_speed_max: 0.16      # Opt 2: m/s upper bound
+    apple_hang_dx: 0.18         # m; |x| of hanging apple from trunk (branch tip / basket bound)
+    branch_z_high: 0.25         # m; taller branch (+10 cm from 0.15)
+    branch_z_low: 0.20          # m; shorter branch (+10 cm from 0.10)
+    high_branch_side: random    # left|right|random — which side gets the higher branch
+    trunk_height: 0.50          # m; +20 cm from 0.30; canopy only at the top
+    apple_drop_below_branch: 0.042  # m; lower so ~½ black stem shows under branch
+    apple_x_jitter: 0.02        # m; stem+apple x ∈ [branch tip − jitter toward bark, branch tip]
+    good_side: random           # left|right|random — which apple is the red-path (pickable) one
+    apple_side: random          # alias of good_side (compat)
+    apple_scale_mult: 0.78
+  place_block_belt:
+    # Options (independent toggles):
+    #   Opt 1 — moving bowl  →  bowl_move_enabled
+    #   Opt 2 — belt blocker →  blocker_enabled
+    bowl_move_enabled: true        # Opt 1: bowl oscillates along FULL belt y (even with Opt 2)
+    bowl_move_speed: 0.30          # Opt 1: nominal m/s; per-ep ×U(1±speed_jitter_frac)
+    place_line_offset: 0.10        # m; red line from load edge; cube must contact before it
+    blocker_enabled: false         # Opt 2: red rod on belt; place cube in clear y-lane
+    blocker_start_clearance: 0.15  # Opt 2: m; min near-face distance from belt load edge
+    blocker_length_frac_min: 0.20  # Opt 2: rod y-size as fraction of belt width
+    blocker_length_frac_max: 0.30  # Opt 2: upper y-size frac
+    blocker_half_x: 0.012          # Opt 2: nominal rod half-thickness along flow (m)
+    blocker_half_x_jitter_frac: 0.50  # Opt 2: per-ep half_x ∈ nom*(1±this)
+    belt_speed: 0.06               # nominal m/s; per-ep ×U(1±speed_jitter_frac)
+    speed_jitter_frac: 0.20        # ± fraction for belt_speed and bowl_move_speed
+    theta_max_deg: 30.0         # deg; tilt metric: score = 1 − max_tilt/theta_max
+    belt_ride_steps: 600        # max physics steps to let block ride belt
+    block_belt_clearance: 0.05  # m; min edge-to-edge gap from cube to belt
+    block_y_jitter: 0.05        # m; cube y = belt_y ± this
+    random_belt_flip: true      # mirror layout about x=0 (left or right arm places)
+  play_billiard:
+    # Options (independent toggles):
+    #   Default — only the red target ball; success in any of the 6 pockets
+    #   Opt 1 — specific_hole: one top pocket (L/M/R) + yellow arrow at that hole
+    #     CLI: --task-arg specific_hole=true   or   --option 1
+    #   Opt 2 — enable_distractors: up to 2 colored balls; any pocket still OK
+    #     CLI: --task-arg enable_distractors=true   or   --option 2
+    #   Opt 1+2 — specific hole + arrow; distractors occupy a different top pocket
+    #             (nominated hole and the shot into it stay clear)
+    # Legacy: pocket_mode=top_three → Opt1; blocker_mode=path_to_top|... → Opt2
+    specific_hole: True
+    enable_distractors: True
+    num_extra_balls: 2          # used when Opt2 on; 0 → sample 1–2 per episode
+    # bounce_threshold: 0.15    # PhysX min |v_rel| for restitution (default cue ~0.55 m/s)
+    ball_radius: 0.012          # m; pocket diameter defaults to 1.2× ball diameter
+    table_cx: 0.0               # m; table center x
+    table_cy: 0.1               # m; table center y
+    table_half_len: 0.22        # m; half-length along +X
+    table_half_wid: 0.14        # m; half-width along +Y
+    settle_steps: 500           # physics steps after strike
+    strike_impulse: 0.55        # impulse magnitude applied on tip–ball contact
+  control_quality:
+    # Default: color_mode=alternating, black_frac_max=0 (no distractors)
+    # Opt 1: color_mode=random | Opt 2: black_frac_max>0 (e.g. 0.50)
+    # tile_pause_s = max hold under stamp; miss unstamped red/green → fail
+    n_tiles: 6
+    color_mode: alternating
+    spacing_mode: random
+    tile_spacing: 0.08
+    spacing_min: 0.07
+    spacing_max: 0.14
+    black_frac_max: 0.0
+    tile_pause_s: 2.0
+  ring_on_moving_peg:
+    r_ring: 0.028               # m; ring radius
+    catch_r: 0.07               # m; catch / success radius
+    period: 3000                # sim steps per peg motion cycle
+    amp_x: 0.010                # m; peg X oscillation amplitude
+    amp_y: 0.025                # m; peg Y oscillation amplitude
+    amp_z: 0.018                # m; peg Z oscillation amplitude
+  drop_ball_hole:
+    # cubic = existing box/tray + square rotating cap; cylinder = hollow
+    # circular tray + circular rotating cap.
+    container_shape: cylinder  # cubic | cylinder
+    bucket_half: 0.12           # m; container inner half-extent (cap scales with it)
+    randomize_container_radius: true  # ±container_radius_jitter on bucket_half (+ cap)
+    container_radius_jitter: 0.15     # ±15%
+    cylinder_hole_inset: 0.025 # cylinder only: keep the hole clear of the plate rim
+    cylinder_hole_edge_clearance: 0.008  # keep the full hole disk inside the rim
+    spin_speed: 1.216           # angular speed baseline; dir random ± (−20% from 1.52)
+    spin_speed_jitter: 0.20     # sample speed ~ U(spin_speed×0.8, spin_speed×1.2)
+    # spin_speed_min / spin_speed_max: optional absolute range (overrides jitter when both set)
+    hole_align_tol: 0.015       # m; release XY vs predicted hole center
+    release_open_steps: 300     # fallback full open_gripper duration if plan query fails
+    release_fraction: 0.50      # ball free of fingers this far into the open plan
+    release_fall_lead_steps: 15 # extra lead after separation to fall through the hole
+    release_hold_steps: 30      # prefer hole staying under the ball this long
+    release_upstream_m: 0.008   # m; aim upstream against spin so the hole sweeps onto the ball
+    r_tol: 0.06                 # unused; code reads hole_align_tol (default 0.015 m)
+    align_window: 0.18          # unused; no matching key in envs/drop_ball_hole.py
+    max_track_steps: 900        # unused; code uses align_search_steps (default 1200)
+    ball_color: [0.90, 0.10, 0.10]  # red
+    ball_side: random           # random|left|right — either arm operates
+    ball_x_jitter: 0.02         # m; small ±x spawn randomness
+    ball_y_jitter: 0.045        # m; ±y spawn randomness
+    force_platform_miss: false  # true = drop onto solid / dummy for failure demos
+    hole_xy_jitter: 0.012       # m; ±x/±y randomization for target hole and dummy hole centers
+    # Independent feature toggles (both may be true):
+    stick_to_surface: false     # Opt1: latch ball on platform if dropped off the real hole
+    add_dummy_hole: true       # Opt2: cut opposite-corner decoy hole slightly smaller than ball
+    # ---- Opt1 (stick_to_surface) params ----
+    stick_contact_steps: 4      # frames on platform with NO hole overlap before latch (fail)
+    stick_settle_steps: 12      # near-rest frames WITH hole overlap before latch on rim
+    stick_vel_tol: 0.05         # m/s; settle speed threshold
+    stick_z_tol: 0.012          # m; max height above platform rest pose to count as contact
+    # ---- Opt2 (add_dummy_hole) params ----
+    dummy_hole_radius_frac: 0.92  # ~just under ball diameter; ball can wedge in, cannot fall through
+    dummy_hole_nest_depth: 0.35   # sink depth as fraction of ball_radius when stuck in dummy hole
+    # dummy_hole_radius: 0.023    # optional absolute m; if set, overrides radius_frac
+  sort_apples_belt:
+    n_apples_min: 4             # fixed episode size (all options)
+    n_apples_max: 4
+    belt_speed_min: 0.00112     # 30% below max; per-ep U[min, max] (−20% vs 0.0014)
+    belt_speed_max: 0.0016      # upper (−20% vs 0.0020); ~0.096 m/s surface w/ advance_every
+    spawn_gap: 0.36             # m; spacing between successive apples (+20% vs 0.30)
+    belt_speed_scale: 1.0       # multiplier on sampled belt_speed
+    advance_every: 4            # physics steps between belt ticks
+    gate_center_y: -0.03        # divert plank hinge center along belt Y (m); was -0.06
+    gate_default_left: true     # diverter aims left before first button press
+    # Options (independent toggles):
+    #   Default — alternating red/green  →  color_mode: alternating
+    #   Opt 1 — random red/green         →  color_mode: random   (--option 1)
+    #   Opt 2 — rotten apple + dump bin  →  rotten_prob: 0.3     (--option 2)
+    #     Always one brown apple; with P=rotten_prob a second is also brown.
+    #     Both buttons open the two-piece plank into the garbage bin at lowest y.
+    color_mode: alternating
+    rotten_prob: 0.0
+  trap_bug:
+    # Office wall-shelf scene; a cockroach, spider, or ant emerges from under
+    # the bookshelf and scurries left/right with its head facing travel.
+    # Expert places a hollow clear glass trap over it without pausing the bug.
+    # Success = trap footprint covers the bug on the table.
+    # After walk_time seconds the bug retreats under the shelf (episode fails).
+    bug_type: random            # cockroach | spider | ant | random
+    bug_types: [cockroach, spider, ant]  # pool when bug_type=random
+    run_side: random            # left | right | random (trap placed on same side)
+    bug_speed_min: 0.07         # m/s base scuttle speed (low)
+    bug_speed_max: 0.14         # m/s base scuttle speed (high)
+    emerge_steps: 40            # sim steps of emerge before L/R run
+    walk_time: 15.0             # seconds out before hiding (fail)
+    trap_half: [0.045, 0.045, 0.028]  # m; outer half-extents of glass trap
+    trap_wall: 0.004            # m; visual wall / lid thickness
+    trap_wall_collision: 0.012  # m; thicker PhysX walls so fingers pinch outer faces
+    trap_mass: 0.5              # kg; light enough to carry; bug is ~4 g and cannot shove it
+    trap_hold_gripper: 0.78     # outer-wall pinch width (do not crush through hollow)
+    trap_latch_gval_max: 0.90   # latch while closing around outer walls
+    trap_release_gval_min: 0.94 # release only when nearly fully open
+    release_clearance: 0.05     # m; drop height above the seated trap
+  whack_moles:
+    num_moles: 2                # default: 2 moles; cosine bob, speed in [60%, 100%] of pop_speed
+    num_appearances: 5          # max rise→fall cycles per unhit mole; missing all fails
+    # Opt 1 — rabbit distractor (avoid; touching fails). Combinable with Opt 2.
+    #   CLI: --task-arg distractor_enabled=true   or   --option 1
+    distractor_enabled: false
+    num_distractors: 1          # rabbits when Opt 1 on (clamped to free holes)
+    # Opt 2 — moles reappear from a free hole each time they go down.
+    #   CLI: --task-arg relocating_moles=true     or   --option 2
+    relocating_moles: false
+    difficulty: easy            # easy = one mole at a time; hard = two simultaneous (both arms)
+    pop_steps: 0                 # 0 = continuous bob (no crown freeze)
+    pop_speed: 0.064            # m/s peak |dz/dt|; 20% below prior 0.08
+    mole_speed_spread: 0.40     # lower = pop_speed * (1 - spread)
+    press_ready_frac: 0.18      # legacy; stroke uses press_commit_frac
+    press_commit_frac: 0.85     # only smash once the mole is near its crest
+    press_overshoot: 0.012      # m; drive the head this far into the crown
+    strike_xy_tol: 0.030        # m; head-vs-hole XY error allowed before stroke
+    strike_attempts: 4          # approach/wait/strike cycles per mole
+    approach_max_frac: 0.35     # re-hover while mole is this low
+    approach_falling_frac: 0.55 # or mid-fall (never crest)
+    hover_clearance: 0.018       # m; short jab above raised mole
+    touch_tol: 0.04             # m; legacy XY touch tol (head footprint is authoritative)
+    hole_count: 9               # openings on board
+    hole_size: 0.070            # m; circular hole diameter (~mole/rabbit footprint)
+    hole_bar_thickness: 0.014   # m; min rim / spacing between hole edges
+    cube_hole_scale: 1.20       # legacy; mallets use head size, not cubes
+    cube_grasp_drop_z: 0.05     # m; legacy grasp drop (mallet uses cradle height)
+    mole_scale_mult: 1.80       # 1.5x prior mole size
+    mole_height: 0.1053         # m; world height after mole_scale_mult (pop travel)
+    mole_raise_drop: 0.02       # m; how much of the mole stays below the board at peak
+    rabbit_scale_mult: 1.00     # 224_rabbit authored near mole height
+    rabbit_height: 0.1047       # m; rabbit world height
+    table_height_bias: 0.05     # m; raise table (+board) this much
+    board_z_lift: 0.06          # m; half-height compact board above the table
+    board_color: [0.34, 0.62, 0.24]  # RGB grass-green play surface
+    board_body_color: [0.18, 0.09, 0.04]  # dark brown box walls
+  boil_milk:
+    # KitchenS: no sink/tap. Stove left or right; microwave on the opposite side.
+    # Pot of milk on a random burner; grasp and twist the cooktop knob (same-side
+    # arm) to toggle heat. White milk rises while on. Success = milk reaches the
+    # red ring, then stove off before spill. Failure = spill, or shutoff early.
+    scene_id: 0
+    stove_side: random          # left | right | random
+    pot_burner: random          # left_front | right_front | left_rear | right_rear | random
+    range_xy: [0.28, 0.14]      # Y used; X overridden by stove_side
+    range_x_right: 0.28
+    range_x_left: -0.28
+    microwave_y: 0.18
+    microwave_x_left: -0.32
+    microwave_x_right: 0.32
+    boil_steps: 6000            # steps for liquid_level 0→1 while stove is on
+    randomize_boil_steps: true  # ±boil_steps_jitter
+    boil_steps_jitter: 0.20     # ±20%
+    settle_steps: 1200          # steps for liquid to return toward baseline when off
+    baseline_level: 0.35        # resting fill fraction
+    target_ring: 80             # 100 = rim, 0 = pot floor (base before jitter)
+    target_ring_jitter: 0.10    # ±10% multiplicative jitter on target_ring
+    shutoff_lead: 0.08          # start shutoff this far below the ring
+    overflow_level: 0.98        # rim; spill + fail if reached while stove on
+    # force_overflow: true      # demo failure: leave burner on until spill
+    pot_id: 0                   # unused (procedural pot); kept for schema compat
+    pot_radius: 0.054           # m; prior teapot then −30%
+    pot_height: 0.0735          # m; prior teapot then −30%
+    handle_length: 0.091        # m; saucepan dual-rod handle (−30%)
+    range_scale_mult: 1.0
+    microwave_scale_mult: 1.3   # +30% microwave
+    milk_box_id: -1             # -1 = random 038_milk-box variant
+    milk_box_height: 0.20       # m; ~1 L carton
+    mug_id: -1                  # -1 = random 039_mug; else fixed id
+    mug_height: 0.0735          # m; prior 10.5 cm then −30%
+    mug_gap: 0.03               # m; air gap between milk/mug footprints
+    knob_contact_radius: 0.06   # m; pinch-to-knob distance that counts as held
+  cook_food:
+    # KitchenS: food starts on chopping board → pan → cook via knob → shut off (no plating).
+    # food_type: meat|sausage|onion_half|random
+    # Layout: stove current|center; pan on left_front|right_front (handle toward rear / +Y);
+    # board/decor/food jittered with AABB clearance.
+    scene_id: 0
+    food_type: random
+    randomize_layout: true
+    stove_pose: random          # current | center | random
+    # left_front | right_front | random (random only honored when randomize_layout)
+    burner: random
+    range_xy: [0.10, 0.14]
+    range_center_xy: [0.0, 0.14]
+    board_y: -0.02
+    plate_y: -0.12
+    cook_steps: 3076            # 2× prior 1538 (50% slower / mean cook time ×2)
+    cook_speed_jitter: 0.20     # per-ep cook_steps ~ U(nom×(1±0.20))
+    # Same shutoff window for every food (sim seconds at cook_intensity).
+    success_window_sec: 4.0
+    # Start approach early — cooking stays live through knob turn.
+    shutoff_lead: 0.58
+    cook_intensity: 0.70
+    range_scale_mult: 1.0
+    pan_scale: 1.0
+    skillet_id: 2
+    skillet_handle_yaw: 3.1416   # handle +Y (rear), clear of front-apron knob
+    # Drop on skillet bowl center (functional point 0).
+    place_dx: 0.0
+    place_dy: 0.0
+    plate_scale: 0.715
+    board_scale_mult: 0.0975
+    knob_contact_radius: 0.06
+  cook_food_timer:
+    # Same knobs as cook_food (no plating), plus a pie timer (green→yellow→red)
+    # that advances only while the stove is on (and freezes when the stove is off).
+    scene_id: 0
+    food_type: random
+    randomize_layout: true
+    stove_pose: random
+    burner: random
+    range_xy: [0.10, 0.14]
+    range_center_xy: [0.0, 0.14]
+    board_y: -0.02
+    plate_y: -0.12
+    cook_steps: 3076
+    cook_speed_jitter: 0.20
+    success_window_sec: 4.0
+    shutoff_lead: 0.58
+    cook_intensity: 0.70
+    range_scale_mult: 1.0
+    pan_scale: 1.0
+    skillet_id: 2
+    skillet_handle_yaw: 3.1416   # handle +Y (rear), clear of front-apron knob
+    place_dx: 0.0
+    place_dy: 0.0
+    plate_scale: 0.715
+    board_scale_mult: 0.0975
+    knob_contact_radius: 0.06
+    timer_radius: 0.045
+    timer_n_sections: 24
+    timer_x: -0.36              # top-left of table (x−, y+)
+    timer_y: 0.28
+  pour_beer:
+    # KitchenS: hold the fancy tap push-button to pour; release to stop.
+    # Foam % of stream rises with continuous hold time (resets on release). Pause to settle; overflow fails.
+    # When pouring is done, click 050_bell (left/right of tap) to signal finish — scored on that press.
+    # Mug glass materials match measure_ingredient jar (transmission / hollow viewer shell).
+    # Layout: tap L/R + Y in [baseline−10cm, baseline]; mug under nozzle; bar props AABB-clear.
+    scene_id: 0
+    randomize_layout: true
+    station_side: random
+    station_x: 0.10
+    cup_y: -0.08
+    tap_dy: 0.12
+    tap_y_down: 0.10
+    station_x_range_left: [-0.16, -0.06]
+    station_x_range_right: [0.06, 0.16]
+    station_x_range: [0.06, 0.16]
+    bell_side: random           # left | right | random of the tap
+    bell_dx: 0.20               # m; lateral clearance from tap center
+    pour_rate: 0.000715
+    randomize_rates: true       # ±jitter on pour_rate + foam_gain (fill speed varies by run)
+    pour_rate_jitter: 0.30      # ±30% fill-speed randomization
+    foam_gain_jitter: 0.20      # ±20%
+    # Stream foam % ramps start→peak over foam_ramp_steps of continuous hold; resets on release.
+    foam_gain_start: 0.12
+    foam_gain: 0.55
+    foam_ramp_steps: 90
+    foam_decay: 0.0045
+    tap_settle_sec: 1.0  # button must stay released this long before fill quality can pass
+    expert_foam_pause: 0.16
+    expert_foam_resume: 0.09
+    target_liquid: 0.85
+    safe_total: 0.96
+    full_liquid_tol: 0.05
+  clean_table:
+    # Per-seed layout: laptop L/R, mug 15–20 cm gap, spill ±30% speed, décor band.
+    randomize_layout: true
+    laptop_side: random
+    force_side: false
+    mug_side: random
+    laptop_x: 0.20
+    laptop_y: -0.02
+    mug_laptop_gap_min: 0.30
+    mug_laptop_gap_max: 0.40
+    mug_y_min: -0.10
+    mug_y_max: 0.50
+    mug_x: 0.20
+    mug_y: -0.02
+    sponge_y: -0.18
+    sponge_dx: 0.12
+    sponge_grasp_open: 1.0
+    sponge_grasp_close: 0.25
+    mug_id: 0
+    mug_scale_mult: 0.60
+    laptop_id: 0
+    spill_steps: 3667
+    spill_speed_jitter: 0.30
+    reach_laptop_level: 0.92
+    clean_tol: 0.08
+    post_tip_wait: 40
+    expert_wipe_level: 0.20
+    initial_puddle_level: 0.22
+    spot_contact_extra: 0.004
+    spot_clear_dwell: 6
+    wipe_safe_z: 0.11
+    mug_avoid_margin: 0.025
+  fill_coffee_jar:
+    # KitchenS: press button on coffee dispenser → beans into marked jar.
+    # No microwave. Stove left|right; dispenser on the opposite half inside a
+    # tight press-reliable band (far poses often register ~0 N on the button).
+    # Jar stays under the nozzle. Decor clears stove/station/jar corridor.
+    # Success = fill in [target_fill ± fill_tol]. Peak button press force → beans.
+    target_fill: random         # 0.25 | 0.50 | 0.75 | random
+    scene_id: 0
+    stove_side: random          # left | right | random
+    randomize_layout: true
+    range_xy: [0.28, 0.14]
+    range_x_right: 0.28
+    range_x_left: -0.28
+    station_x: -0.08            # |x| mirrored when stove is on the left
+    station_x_left_lo: -0.105
+    station_x_left_hi: -0.07
+    station_x_right_lo: 0.055
+    station_x_right_hi: 0.085
+    disp_y: -0.02               # baseline dispenser Y
+    disp_y_up: 0.015            # +1.5 cm (keep button press reliable)
+    disp_y_down: 0.02           # −2 cm
+    jar_y_min: -0.17
+    beans_full: 160             # rim = 100% fill
+    force_thresholds: [3.0, 6.0, 10.0, 14.0]   # N  (light → hard)
+    beans_per_force_level: [1, 5, 10, 15]       # light → hard press
+    randomize_beans_per_force_level: true       # ±beans_per_force_level_jitter per level
+    beans_per_force_level_jitter: 0.10          # ±10% (kept non-decreasing)
+    force_stiffness: 800.0      # N/m spring engagement proxy
+    force_engage_slack: 0.05    # m pressure engagement above key top
+    press_depths: [0.020, 0.030, 0.044, 0.057]  # expert depths for levels 1–4
+    press_sample_s: 0.40
+    fill_tol: 0.05              # ±5% success band
+    coffee_box_id: -1           # -1 = random 113_coffee-box
+    milk_box_id: -1             # -1 = random 038_milk-box
+    mug_id: -1                  # -1 = random 039_mug
+    kettle_id: -1               # -1 = random 009_kettle
+    kettle_burner: random       # random | left_front | right_front | left_rear | right_rear
+  measure_ingredient:
+    # KitchenS baking counter: pour oil, then place jar on electronic scale.
+    # oil_style: solid (opaque sunflower yellow) | transparent (see-through amber)
+    # Layout: MW top-left|left-corner; dispenser L/R + Y±6cm; scale L/R at dist±10cm;
+    # decor AABB-clear of MW/station/scale with jar approach corridor kept open.
+    scene_id: 0
+    target_fill: 0.25
+    fill_levels: [0.25, 0.50, 0.75, 1.0]
+    randomize_target_fill: true # sample from fill_levels each episode
+    pour_rate: 0.00022
+    # Sample fill speed ∼ Uniform(1±pour_rate_jitter) * pour_rate (0 = fixed).
+    pour_rate_jitter: 0.15
+    fill_tol: 0.05
+    overflow_level: 1.0
+    oil_style: solid
+    scale_id: 0
+    randomize_layout: true
+    microwave_pose: random      # top_left | left_corner | random
+    microwave_top_left: [-0.32, 0.18]
+    microwave_left_corner: [-0.48, 0.22]
+    microwave_y: 0.18
+    microwave_x_range: [-0.42, -0.22]
+    station_side: random        # left | right | random
+    station_x: -0.08
+    station_x_range: [-0.20, -0.02]
+    station_x_range_left: [-0.22, -0.04]
+    station_x_range_right: [0.04, 0.22]
+    disp_y: 0.08
+    disp_y_jitter: 0.06
+    jar_y: -0.06
+    # Contact shove distance (no end teleport). Keep ≥ ~6 cm so the push is visible.
+    jar_start_gap: 0.08
+    scale_x: -0.32
+    scale_y: -0.14
+    scale_dist: 0.25
+    scale_dist_jitter: 0.10
+    scale_near_dx_range: [-0.28, -0.16]
+    scale_near_dy_range: [-0.12, -0.02]
+    decor_on_microwave_prob: 0.35
+    bread_xy: [0.28, -0.20]
+    flour_xy: [0.38, 0.14]
+    chips_xy: [0.12, -0.22]
+    bowl_xy: [0.40, -0.02]
+    board_scale_mult: 0.091     # +30% cutting board
+    microwave_scale_mult: 1.3   # +30% microwave
+  make_soup:
+    # KitchenS: no microwave. Burner starts on. Stove slot (current/top-left/
+    # top-right), board on lower half, veggies on the board, pot on a front
+    # burner, decor on empty apron cells. Arm follows board X (center → either).
+    scene_id: 0
+    burner: left_front           # fallback when pin_burner / randomize_layout=false
+    pin_burner: false
+    range_xy: [0.18, 0.14]       # fallback when randomize_layout=false
+    range_slots: [current, top_left, top_right]
+    range_scale_mult: 1.0
+    randomize_layout: true
+    randomize_background: true
+    clean_background_rate: 0.0
+    water_level: 0.45
+    # Original two-handled pot, sized to the boil_milk saucepan.
+    pot_radius: 0.06786          # prior 0.0754 × 0.9
+    pot_height: 0.0735
+    pot_wall: 0.005
+    board_half: [0.095, 0.052, 0.010]  # y prior 0.065 × 0.8
+    handle_half: [0.022, 0.024, 0.022]
+    board_x: 0.16                # fallback / mean when randomize_layout=false
+    board_y: -0.14
+    board_center_x_tol: 0.06     # |board_x| <= tol → either arm
+    cube_half: 0.012
+    tomato_radius: 0.012         # matched to prior cube half
+    n_veg_min: 2                 # distinct produce count (no duplicates)
+    n_veg_max: 4
+    tilt_hold_dot: 0.82
+    tilt_spill_dot: 0.50
+    pour_tip_rad: 0.70           # wrist roll for the pour (~40°)
+    knob_contact_radius: 0.06
+    grasp_tcp_tol: 0.045
+    plate_x: -0.18
+    plate_y: -0.08
+    plate_scale: 0.55
+    bread_scale: 1.0
+    wine_x: -0.30
+    wine_y: -0.02
+    wine_scale: 1.0
+    glass_x: -0.22
+    glass_y: -0.16
+    glass_scale: 0.585           # prior 0.45 × 1.3

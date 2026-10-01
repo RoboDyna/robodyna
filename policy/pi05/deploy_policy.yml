@@ -1,0 +1,14 @@
+# Basic experiment configuration (keep unchanged)
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+scenario: default
+instruction_type: canonical
+
+# Add Parameters You Need
+train_config_name: null
+model_name: null
+checkpoint_id: 25000   # the RoboDyna pi05 baseline (wall-clock truncated at 25k)
+pi0_step: 50

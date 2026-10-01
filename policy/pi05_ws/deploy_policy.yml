@@ -1,0 +1,18 @@
+# Basic experiment configuration (keep unchanged)
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+scenario: default
+instruction_type: unseen
+
+# Inference mode: false = physics frozen during inference (historical);
+# true = latency charged to simulation steps at async_sim_hz.
+async_inference: false
+async_sim_hz: 250.0
+
+# Remote pi05 policy server (started separately by run_eval.sbatch)
+host: 127.0.0.1
+port: 8765
+pi0_step: 50

@@ -1,0 +1,81 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/catch_marbles_trapdoors__opt1
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  catch_marbles_trapdoors:
+    press_hold_steps: 24
+    final_dwell_steps: 100
+    button_press_depth: 0.03
+    door_open_angle_deg: 95.0
+    door_open_speed_deg: 220.0
+    door_open_duration_sec: 0.5
+    door_open_once: true
+    door_open_max: 3
+    enable_distractor: false
+    distractor_collide: false
+    distractor_height_offset: 0.0
+    distractor_y_offset: 0.03
+    distractor_speed: null
+    distractor_speed_scale_min: 0.8
+    distractor_speed_scale_max: 1.2
+    target_color: null
+    shuffle_colors: true
+    key_base_half:
+    - 0.032
+    - 0.032
+    - 0.005
+    ball_speed: 0.18
+    ball_speed_scale_min: 0.8
+    ball_speed_scale_max: 1.2
+    ball_bounce_height: 0.012
+    marble_protrude_frac: 0.4
+save_failed_cases: false
+save_data: false

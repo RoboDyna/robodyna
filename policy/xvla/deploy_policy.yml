@@ -1,0 +1,20 @@
+# Basic experiment configuration (keep unchanged)
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+scenario: default
+instruction_type: unseen
+
+# Inference mode. false = physics frozen while the policy thinks (historical
+# behaviour); true = latency is paid in simulation steps at async_sim_hz.
+async_inference: false
+async_sim_hz: 250.0
+
+# X-VLA inference server (start it separately, see README.md)
+host: 127.0.0.1
+port: 8010
+
+# Soft-prompt slot this checkpoint was trained under. Not 6 (that is RoboTwin2).
+domain_id: 19

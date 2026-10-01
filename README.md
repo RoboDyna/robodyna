@@ -6,6 +6,7 @@
   <p><b>Accepted at the NeurIPS 2026 Workshop on Robot Learning with World Models</b></p>
 
   <p>
+    <a href="https://robodyna.github.io/robodyna/paper/robodyna_neurips2026_workshop.pdf"><b>Paper</b></a> ·
     <a href="https://robodyna.github.io/robodyna/"><b>Project page</b></a> ·
     <a href="https://robodyna.github.io/robodyna/#gallery">Task gallery</a> ·
     <a href="https://huggingface.co/RoboDyna">🤗 Data &amp; assets</a> ·

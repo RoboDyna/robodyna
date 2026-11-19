@@ -1,0 +1,96 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/save_goal__opt1
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  save_goal:
+    players_enabled: true
+    players_max: 2
+    player_thin_scale: 0.7
+    player_corridor_margin: 0.04
+    player_y_spread: 0.2
+    player_separation: 0.15
+    player_max_goal_dist_mult: 2.0
+    player_goal_face_bias: 0.22
+    cover_enabled: false
+    cover_entry_gap: 0.1
+    cover_exit_gap_frac: 0.1
+    cover_clearance_z: 0.12
+    cover_wall_t: 0.008
+    cover_roof_t: 0.006
+    cover_len_min: 0.1
+    cover_player_clearance: 0.02
+    red_line_y_extra: 0.1
+    net_enabled: true
+    net_depth: 0.09
+    net_cell: 0.028
+    net_strand_t: 0.0022
+    mirrored: null
+    random_mirror: true
+    ball_speed: 0.04376
+    ball_speed_scale_min: 0.8
+    ball_speed_scale_max: 1.2
+    ball_angle_deg_min: -10.0
+    ball_angle_deg_max: 10.0
+    goal_center_y: 0.05
+    goal_center_y_jitter: 0.0
+    green_area_x_len: 0.1
+    green_area_y_extra: 0.05
+    red_line_green_gap: 0.01
+    red_line_x: 0.11
+    randomize_red_line: true
+    red_line_outward_max: 0.05
+    goal_x: 0.3
+    keeper_x: 0.16
+    keeper_goal_clearance: 0.05
+    keeper_pose_tol: 0.03
+    keeper_mass: 0.5
+save_failed_cases: false
+save_data: false

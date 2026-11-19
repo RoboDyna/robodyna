@@ -1,0 +1,37 @@
+# Basic experiment configuration (keep unchanged)
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+scenario: default
+instruction_type: canonical
+
+# Add Parameters You Need
+#
+# The frozen/async mode is not set here; script/eval_policy.py reads --eval_mode_name.
+
+# FastWAM checkout and training run. ckpt_setting is only a result label; the weights are
+# addressed by checkpoint_id, which indexes runs/<run>/checkpoints/weights/step_<id:06d>.pt.
+fastwam_root: ./third_party/fastwam  # path to the Fast-WAM checkout
+fastwam_run_dir: runs/<fastwam_run>  # the FastWAM training run, relative to fastwam_root
+
+device: cuda
+mixed_precision: bf16
+
+# Actions executed per inference, out of a 32-step predicted chunk. 24 matches upstream's RoboTwin
+# evaluation (configs/sim_robotwin.yaml). The predicted chunk is back-loaded (indices 0-18 stay near
+# a 0.004 rad noise floor, 22-31 move 0.06-0.15 rad/step), so values below about 20 execute only
+# the flat prefix and the arm does not leave its home pose. At RoboDyna's 16.67 Hz control rate, 24
+# steps is 1.44 s of open-loop execution. See README.md. --replan_steps overrides this value.
+replan_steps: 24
+num_inference_steps: 10
+action_horizon: null
+sigma_shift: null
+
+text_cfg_scale: 1.0
+negative_prompt: ""
+rand_device: cpu
+tiled: false
+# Print a per-stage (T5 / VAE / denoise) inference timing table once per episode.
+timing_enabled: true

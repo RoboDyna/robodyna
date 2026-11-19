@@ -1,0 +1,25 @@
+# Basic experiment configuration (keep unchanged)
+policy_name: null
+task_name: null
+task_config: null
+ckpt_setting: null
+seed: null
+scenario: default
+instruction_type: canonical
+
+# The frozen/async protocol is not selected here: script/eval_policy.py reads
+# --eval_mode_name and charges inference latency around model.get_action.
+
+# X-VLA inference server (start it separately, see README.md)
+host: 127.0.0.1
+port: 8010
+
+# Soft-prompt slot this checkpoint was trained under. Not 6 (that is RoboTwin2).
+domain_id: 19
+
+# Proprio fed back to the model: "measured" (the pose the arm reached) or "commanded"
+# (the last commanded pose, which is what X-VLA's official RoboTwin client feeds back).
+proprio_source: measured
+
+# Actions executed per query. 0 = the whole 30-action chunk, matching the official client.
+xvla_step: 0

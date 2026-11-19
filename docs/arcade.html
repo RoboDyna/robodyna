@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RoboDyna Arcade</title>
+  <meta name="description" content="Play all 30 RoboDyna tasks in the browser, at the paper's four difficulty levels, and compare your success rate with π0.5, X-VLA and FastWAM.">
+  <link rel="icon" type="image/png" href="robodyna_logo_transparent.png">
+  <style>
+    :root {
+      --ink:#0f2233; --muted:#55687a; --paper:#f6f8fb; --white:#fff; --line:#dde5ec;
+      --navy:#0b2a45; --teal:#139a9a; --orange:#ee8a1d; --blue:#1769aa; --red:#e04b3c; --green:#3fa55b;
+      --max:1360px; --radius:14px;
+    }
+    * { box-sizing:border-box; }
+    [hidden] { display:none !important; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    a { color:var(--blue); }
+    .wrap { width:min(calc(100% - 32px),var(--max)); margin:0 auto; }
+    nav.top { position:sticky; top:0; z-index:20; background:rgb(255 255 255 / 90%); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+    nav.top .wrap { display:flex; align-items:center; gap:18px; height:56px; }
+    nav.top .brand img { display:block; height:34px; }
+    nav.top .brand { display:flex; align-items:center; gap:10px; text-decoration:none; }
+    nav.top .brand span { color:var(--orange); font-weight:800; letter-spacing:.14em; font-size:.8rem; text-transform:uppercase; }
+    nav.top .right { margin-left:auto; display:flex; gap:10px; align-items:center; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding:6px 13px; border:1px solid var(--line); border-radius:999px; background:var(--white); color:var(--navy); font:inherit; font-size:.86rem; font-weight:700; text-decoration:none; cursor:pointer; }
+    .pill:hover { border-color:var(--navy); }
+    .pill svg { width:16px; height:16px; }
+
+    /* hub */
+    .hub-head { padding:42px 0 22px; }
+    .kicker { display:block; margin-bottom:6px; color:var(--teal); font-size:.78rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    h1 { margin:0 0 10px; font-size:clamp(1.8rem,3.6vw,2.6rem); line-height:1.12; letter-spacing:-.025em; }
+    .lead { max-width:820px; margin:0; color:var(--muted); font-size:1.03rem; }
+    .filters { display:flex; flex-wrap:wrap; gap:8px; margin:22px 0 18px; }
+    .filter { padding:6px 13px; border:1px solid var(--line); border-radius:999px; background:var(--white); font:inherit; font-size:.88rem; font-weight:700; color:var(--ink); cursor:pointer; }
+    .filter .dot { display:inline-block; width:9px; height:9px; margin-right:6px; border-radius:50%; background:var(--c); }
+    .filter[aria-pressed="true"] { border-color:var(--navy); background:var(--navy); color:#fff; }
+    .grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; padding-bottom:50px; }
+    .acard { display:flex; flex-direction:column; padding:0; overflow:hidden; text-align:left; font:inherit; color:inherit; cursor:pointer; background:var(--white); border:1px solid var(--line); border-top:3px solid var(--c); border-radius:12px; transition:transform .15s, box-shadow .15s; }
+    .acard:hover:not(:disabled) { transform:translateY(-3px); box-shadow:0 14px 30px -18px rgb(11 42 69 / 45%); }
+    .acard:disabled { cursor:default; opacity:.55; }
+    .acard .thumb { display:block; aspect-ratio:4/3; background:#e9eef3; overflow:hidden; }
+    .acard img { display:block; width:100%; height:100%; object-fit:cover; }
+    .abody { display:flex; flex-direction:column; gap:5px; padding:10px 12px 12px; }
+    .atag { align-self:flex-start; padding:0 7px; border-radius:999px; background:color-mix(in srgb,var(--c) 14%,white); color:var(--c); font-size:.62rem; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+    .abody b { font-size:.95rem; line-height:1.25; }
+    .pips { display:flex; gap:4px; font-size:.75rem; color:var(--muted); }
+    .pip { width:22px; height:6px; border-radius:3px; background:var(--line); }
+    .pip.part { background:color-mix(in srgb,var(--c) 45%,white); }
+    .pip.full { background:var(--c); }
+
+    /* play */
+    .play { padding:22px 0 50px; }
+    .phead { display:flex; flex-wrap:wrap; align-items:center; gap:14px; margin-bottom:12px; }
+    .ptitle { display:flex; flex-direction:column; }
+    .ptitle .atag { margin-bottom:3px; }
+    .ptitle h2 { margin:0; font-size:1.5rem; letter-spacing:-.02em; line-height:1.15; }
+    .instr { margin:2px 0 0; color:var(--muted); font-style:italic; font-size:.92rem; }
+    .hud { margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+    .hud .cell { min-width:72px; padding:5px 11px; text-align:right; background:var(--white); border:1px solid var(--line); border-radius:10px; }
+    .hud small { display:block; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+    .hud b { display:block; font-size:1.15rem; line-height:1.2; font-variant-numeric:tabular-nums; color:var(--navy); }
+    .hud .warn b { color:var(--red); }
+    .layout { display:grid; grid-template-columns:1fr 270px; gap:18px; align-items:start; }
+    .stage { position:relative; aspect-ratio:3/2; overflow:hidden; border-radius:16px; border:1px solid var(--line); background:#eef2f6; box-shadow:0 18px 44px -24px rgb(11 42 69 / 40%); }
+    .stage canvas { display:block; width:100%; height:100%; touch-action:none; cursor:crosshair; }
+    .overlay { position:absolute; inset:0; display:grid; place-items:center; padding:20px; background:rgb(246 248 251 / 82%); backdrop-filter:blur(3px); }
+    .ov-card { width:min(440px,100%); padding:24px 26px; text-align:center; background:var(--white); border:1px solid var(--line); border-radius:16px; box-shadow:0 20px 50px -24px rgb(11 42 69 / 45%); }
+    .ov-card h3 { margin:0 0 8px; font-size:1.35rem; letter-spacing:-.01em; }
+    .ov-card p { margin:0 0 16px; color:var(--muted); font-size:.92rem; }
+    .ov-k { margin:0 0 4px !important; color:var(--c) !important; font-size:.72rem !important; font-weight:800; letter-spacing:.1em; text-transform:uppercase; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .ov-note { font-size:.78rem !important; margin-top:10px !important; }
+    .obtns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .obtn { padding:9px 20px; border:1px solid var(--navy); border-radius:999px; background:var(--navy); color:#fff; font:inherit; font-weight:700; cursor:pointer; }
+    .obtn.ghost { background:var(--white); color:var(--navy); border-color:var(--line); }
+    .cmps { display:grid; gap:6px; margin:6px 0 0; text-align:left; }
+    .cmp { display:grid; grid-template-columns:70px 1fr 40px; gap:10px; align-items:center; font-size:.85rem; color:var(--muted); }
+    .cmp b { text-align:right; color:var(--ink); font-variant-numeric:tabular-nums; }
+    .cmp .trk { height:9px; border-radius:5px; background:var(--paper); overflow:hidden; }
+    .cmp .trk span { display:block; height:100%; background:var(--teal); border-radius:5px; }
+    .cmp.me { color:var(--ink); font-weight:800; }
+    .cmp.me .trk span { background:var(--orange); }
+    .side { display:flex; flex-direction:column; gap:12px; }
+    .box { padding:14px 15px; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); }
+    .box h4 { margin:0 0 8px; font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+    .levels { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+    .lvl { display:flex; flex-direction:column; align-items:flex-start; padding:7px 10px; border:1px solid var(--line); border-radius:10px; background:var(--white); font:700 .85rem ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink); cursor:pointer; }
+    .lvl small { font:600 .66rem Inter,ui-sans-serif,system-ui,sans-serif; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; }
+    .lvl[aria-pressed="true"] { background:var(--navy); border-color:var(--navy); color:#fff; }
+    .lvl[aria-pressed="true"] small { color:#b9c8d6; }
+    .leveldesc { margin:10px 0 0; font-size:.88rem; color:var(--ink); }
+    .controls { display:flex; flex-direction:column; gap:7px; font-size:.86rem; color:var(--muted); }
+    kbd { display:inline-block; min-width:22px; padding:1px 7px; margin-right:4px; border:1px solid var(--line); border-bottom-width:2px; border-radius:6px; background:var(--paper); font:700 .76rem ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--ink); text-align:center; }
+    .dots { display:flex; gap:6px; }
+    .dots span { width:18px; height:18px; border-radius:50%; border:2px solid var(--line); background:var(--white); }
+    .dots .cur { border-color:var(--navy); }
+    .dots .ok { background:var(--green); border-color:var(--green); }
+    .dots .no { background:var(--red); border-color:var(--red); }
+    .keys { display:flex; gap:8px; flex-wrap:wrap; }
+    .keys button { flex:1; min-width:54px; padding:12px 0; border:1px solid var(--line); border-bottom-width:3px; border-radius:10px; background:var(--white); font:800 1rem inherit; color:var(--navy); cursor:pointer; touch-action:none; user-select:none; }
+    .keys button:active { transform:translateY(2px); border-bottom-width:1px; }
+    .note { font-size:.78rem; color:var(--muted); }
+    footer { padding:24px 0 36px; border-top:1px solid var(--line); text-align:center; color:var(--muted); font-size:.88rem; }
+
+    @media (max-width:1100px) { .grid { grid-template-columns:repeat(4,1fr); } .layout { grid-template-columns:1fr; } .side { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); } }
+    @media (max-width:800px) { .grid { grid-template-columns:repeat(3,1fr); } .hud { margin-left:0; width:100%; } }
+    @media (max-width:560px) { .grid { grid-template-columns:repeat(2,1fr); } nav.top .brand span { display:none; } }
+  </style>
+</head>
+<body>
+  <nav class="top">
+    <div class="wrap">
+      <a class="brand" href="index.html"><img src="robodyna_logo_transparent.png" alt="RoboDyna"><span>Arcade</span></a>
+      <div class="right">
+        <button class="pill" id="sound" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg><span>Sound on</span></button>
+        <a class="pill" href="index.html">← Project page</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="hub">
+      <div class="hub-head">
+        <span class="kicker">RoboDyna Arcade</span>
+        <h1>Can you beat the robots?</h1>
+        <p class="lead">One browser game for each of the 30 RoboDyna tasks, played with the same point-and-click and keyboard controls our human participants used. Each game is 5 episodes; at the end you see your success rate next to π0.5, X-VLA and FastWAM on the same task. Physics here is a simplified 2D take on the SAPIEN scenes.</p>
+      </div>
+      <div class="filters" id="arcade-filters"></div>
+      <div class="grid" id="arcade-grid"></div>
+    </section>
+
+    <section id="play" class="play" hidden>
+      <div class="phead">
+        <button class="pill" id="g-back" type="button">← All games</button>
+        <div class="ptitle"><span class="atag" id="g-tag"></span><h2 id="g-title"></h2><p class="instr" id="g-instr"></p></div>
+        <div class="hud" id="g-hud"></div>
+      </div>
+      <div class="layout">
+        <div>
+          <div class="stage"><canvas id="g-canvas"></canvas><div class="overlay" id="g-overlay" hidden></div></div>
+          <div class="keys" id="g-keys" hidden style="margin-top:12px"></div>
+        </div>
+        <aside class="side">
+          <div class="box" id="g-levelbox"><h4>Condition</h4><div class="levels" id="g-levels"></div><p class="leveldesc" id="g-leveldesc"></p></div>
+          <div class="box"><h4>Episodes</h4><div class="dots" id="g-dots"></div></div>
+          <div class="box"><h4>Controls</h4><div class="controls" id="g-controls"></div><p class="note" style="margin:10px 0 0"><kbd>Esc</kbd> back to all games</p></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="wrap">RoboDyna Arcade · simplified browser versions of the benchmark tasks, not the SAPIEN physics simulation · <a href="index.html">Project page</a></div></footer>
+
+  <script src="arcade/data.js"></script>
+  <script src="arcade/engine.js"></script>
+  <script>
+    // One file per task; missing files simply show as "coming soon".
+    ["catch_ramp_ball","catch_valley_ball","stop_valley_ball","save_goal",
+     "catch_marbles_trapdoors","catch_cuboid","drop_ball_hole","whack_moles",
+     "put_cup_belt","hit_target","load_train","place_block_belt",
+     "cook_meat_timer","pick_ripe_apple","sort_apples_belt","pack_fruits",
+     "catch_shelf_marble","dispense_gummy","marble_shelf_maze","play_billiard",
+     "boil_milk","catch_cup","catch_mouse_object_drop","clean_table","cook_food_timer",
+     "make_soup","measure_ingredient","pour_beer","stop_ball","trap_bug"
+    ].forEach(id => document.write(`<script src="arcade/games/${id}.js" onerror="this.remove()"><\/script>`));
+  </script>
+</body>
+</html>

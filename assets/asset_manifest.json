@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "package": {
+    "repository": "RoboDyna/RoboDyna-assets",
+    "archive": "robodyna-assets-v1.tar.gz"
+  },
+  "upstream": {
+    "repository": "TianxingChen/RoboTwin2.0",
+    "url": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0",
+    "license": "MIT"
+  },
+  "object_directories": [
+    "001_bottle",
+    "002_bowl",
+    "003_plate",
+    "009_kettle",
+    "011_dustbin",
+    "015_laptop",
+    "019_coaster",
+    "021_cup",
+    "023_tissue-box",
+    "025_chips-tub",
+    "027_table-tennis",
+    "035_apple",
+    "036_cabinet",
+    "038_milk-box",
+    "039_mug",
+    "042_wooden_box",
+    "043_book",
+    "044_microwave",
+    "046_alarm-clock",
+    "050_bell",
+    "054_baguette",
+    "059_pencup",
+    "062_plasticbox",
+    "071_can",
+    "072_electronicscale",
+    "075_bread",
+    "076_breadbasket",
+    "088_wineglass",
+    "089_globe",
+    "090_trophy",
+    "091_kettle",
+    "094_rest",
+    "097_screen",
+    "098_speaker",
+    "099_fan",
+    "100_seal",
+    "101_milk-tea",
+    "104_board",
+    "106_skillet",
+    "113_coffee-box",
+    "120_plant",
+    "cube"
+  ],
+  "custom_asset_directories": [
+    "dyna_assets"
+  ],
+  "texture_files": [
+    "dyna_textures/custom/robodyna_stamp.png",
+    "dyna_textures/custom/robot_head_punch.png",
+    "dyna_textures/robodyna_app_icon.png",
+    "dyna_textures/robodyna_app_icon_base.png",
+    "dyna_textures/robodyna_app_icon_exp.png",
+    "dyna_textures/robodyna_app_icon_gui.png",
+    "dyna_textures/robodyna_app_icon_hh.png",
+    "dyna_textures/soccer_ball.png"
+  ],
+  "embodiment_entries": [
+    "embodiments/ur5-wsg/meshes",
+    "embodiments/ur5-wsg/ur5.srdf"
+  ],
+  "excluded": [
+    "Unused RoboTwin object folders and embodiments are deliberately omitted.",
+    "Random background textures are omitted because all shipped task configurations set random_background: false."
+  ]
+}

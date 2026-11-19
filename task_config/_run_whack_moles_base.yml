@@ -1,0 +1,93 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/whack_moles__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  whack_moles:
+    num_moles: 2
+    num_appearances: 5
+    distractor_enabled: false
+    num_distractors: 1
+    relocating_moles: false
+    difficulty: easy
+    pop_steps: 0
+    pop_speed: 0.064
+    mole_speed_spread: 0.4
+    press_ready_frac: 0.18
+    press_commit_frac: 0.85
+    press_overshoot: 0.012
+    strike_xy_tol: 0.03
+    strike_attempts: 4
+    approach_max_frac: 0.35
+    approach_falling_frac: 0.55
+    hover_clearance: 0.018
+    touch_tol: 0.04
+    hole_count: 9
+    hole_size: 0.07
+    hole_bar_thickness: 0.014
+    cube_hole_scale: 1.2
+    cube_grasp_drop_z: 0.05
+    mole_scale_mult: 1.8
+    mole_height: 0.1053
+    mole_raise_drop: 0.02
+    rabbit_scale_mult: 1.0
+    rabbit_height: 0.1047
+    table_height_bias: 0.05
+    board_z_lift: 0.06
+    board_color:
+    - 0.34
+    - 0.62
+    - 0.24
+    board_body_color:
+    - 0.18
+    - 0.09
+    - 0.04
+save_failed_cases: false
+save_data: false

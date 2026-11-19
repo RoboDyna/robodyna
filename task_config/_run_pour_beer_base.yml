@@ -1,0 +1,88 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/pour_beer__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  pour_beer:
+    scene_id: 0
+    randomize_layout: true
+    station_side: random
+    station_x: 0.1
+    cup_y: -0.08
+    tap_dy: 0.12
+    tap_y_down: 0.1
+    station_x_range_left:
+    - -0.16
+    - -0.06
+    station_x_range_right:
+    - 0.06
+    - 0.16
+    station_x_range:
+    - 0.06
+    - 0.16
+    bell_side: random
+    bell_dx: 0.2
+    pour_rate: 0.000715
+    randomize_rates: true
+    pour_rate_jitter: 0.3
+    foam_gain_jitter: 0.2
+    foam_gain_start: 0.12
+    foam_gain: 0.55
+    foam_ramp_steps: 90
+    foam_decay: 0.0045
+    tap_settle_sec: 1.0
+    expert_foam_pause: 0.16
+    expert_foam_resume: 0.09
+    target_liquid: 0.85
+    safe_total: 0.96
+    full_liquid_tol: 0.05
+save_failed_cases: false
+use_dynamic: false
+save_data: false

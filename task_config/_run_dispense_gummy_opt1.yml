@@ -1,0 +1,83 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/dispense_gummy__opt1
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  dispense_gummy:
+    tube_capacity: 4
+    layout_mode: random
+    belt_continuous_motion: false
+    target_color: yellow
+    randomize_gummy_colors: true
+    ball_diameter: 0.03
+    ball_slot_gap: 0.003
+    tube_inner_radius: 0.017
+    tube_wall_thickness: 0.003
+    tube_bottom_z_offset: 0.075
+    tube_center_y: 0.03
+    tube_x_left: -0.06
+    tube_x_right: 0.06
+    bowl_radius: 0.06
+    bowl_align_tol: 0.035
+    bowl_catch_z_tol: 0.025
+    belt_thickness: 0.015
+    belt_move_steps: 30
+    bowl_speed: 0.15
+    belt_speed_jitter: 0.2
+    belt_key_x: 0.26
+    belt_key_y_left: -0.14
+    belt_key_y_right: -0.06
+    key_x: -0.26
+    key_y: -0.13
+    dispense_steps: 24
+    press_hold_steps: 6
+    post_press_dwell: 10
+save_failed_cases: false
+save_data: false

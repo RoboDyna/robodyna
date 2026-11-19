@@ -1,0 +1,78 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/catch_shelf_marble__opt2
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  catch_shelf_marble:
+    n_shelves_min: 4
+    n_shelves_max: 7
+    shelf_length: 0.2
+    randomize_shelf_params: true
+    shelf_param_jitter: 0.1
+    stack_height: 0.39
+    tilt_min_deg: 15.0
+    tilt_max_deg: 45.0
+    bottom_clearance: 0.22
+    ball_radius: 0.014
+    roll_speed: 0.175
+    reactive_marble: false
+    reactive_roll_speed: 0.045
+    oscillating_shelf_enabled: true
+    oscillating_shelf_period: 3.0
+    bowl_radius: 0.05
+    bowl_speed: 0.18
+    bowl_catch_xy_tol: 0.035
+    key_x_left: -0.26
+    key_x_right: 0.26
+    key_y: -0.13
+    layout_pad_from_key: 0.2
+    max_stack_span: 0.65
+save_failed_cases: false
+save_data: false

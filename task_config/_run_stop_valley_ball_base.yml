@@ -1,0 +1,123 @@
+render_freq: 0
+episode_num: 50
+use_seed: false
+save_freq: 15
+embodiment:
+- ur5-wsg
+- ur5-wsg
+- 0.6
+language_num: 100
+eval_step_limit: 15000
+domain_randomization:
+  random_background: false
+  cluttered_table: false
+  clean_background_rate: 1
+  random_head_camera_dis: 0
+  random_table_height: 0
+  random_light: false
+  crazy_random_light_rate: 0
+camera:
+  head_camera_type: D435
+  wrist_camera_type: D435
+  collect_head_camera: true
+  collect_wrist_camera: true
+data_type:
+  rgb: true
+  third_view: false
+  depth: false
+  pointcloud: false
+  observer: false
+  endpose: true
+  qpos: true
+  mesh_segmentation: false
+  actor_segmentation: false
+pcd_down_sample_num: 1024
+pcd_crop: true
+save_path: ./data
+clear_cache_freq: 1
+collect_data: true
+eval_video_log: false
+check_render_success: false
+export_lerobot: true
+lerobot_root: ./data_lerobot/prod_run/stop_valley_ball__base
+lerobot_chunks_size: 1000
+lerobot_task_state_dim: 32
+interactive_params:
+  xy_speed: 0.3456
+  z_speed: 0.2688
+  roll_speed: 1.536
+  max_dt: 0.05
+  max_lead: 0.0528
+  max_joint_speed: 4.8
+task_args:
+  stop_valley_ball:
+    param_jitter: 0.1
+    ramp_half_width: 0.1625
+    ramp_thickness: 0.012
+    ramp_center_y: 0.08
+    ramp_valley_x: -0.14
+    ramp_valley_height: 0.025
+    ramp_run: 0.324
+    down_run: 0.324
+    down_rise: 0.094
+    up_run: 0.324
+    up_rise: 0.085
+    curve_segments: 16
+    rail_height: 0.055
+    rail_thickness: 0.006
+    ball_radius: 0.018
+    ball_mass: 0.5
+    drop_height: 0.14
+    drop_time: 0.4
+    wall_bounce_enabled: false
+    enable_distractor: false
+    mirrored: null
+    random_mirror: true
+    ball_path_mode: straight
+    angled_path_min_deg: 15.0
+    angled_path_max_deg: 25.0
+    drop_forward_angle_min_deg: -8.0
+    drop_forward_angle_max_deg: 12.0
+    initial_forward_speed: 0.11
+    initial_forward_speed_min: 0.11
+    initial_forward_speed_max: 0.11
+    platform_length_scale_min: 1.0
+    platform_length_scale_max: 1.0
+    physics_max_steps: 1200
+    red_line_gap: 0.05
+    landing_gap: 0.15
+    roll_time_min: 4.0
+    roll_time_max: 7.0
+    roll_acceleration: 0.25
+    launch_speed: 0.4
+    idle_time_min: 1.0
+    idle_time_max: 2.0
+    settle_steps: 150
+    start_freeze_s: 0.0
+    panel_radius: 0.055
+    panel_half_thick: 0.006
+    panel_mass: 0.12
+    panel_color:
+    - 0.88
+    - 0.2
+    - 0.16
+    handle_color:
+    - 0.62
+    - 0.42
+    - 0.22
+    handle_half_len: 0.05
+    handle_half_w: 0.01
+    handle_half_t: 0.007
+    holder_height: 0.022
+    panel_spawn_y_min: -0.2
+    panel_spawn_y_max: -0.14
+    intercept_flight_frac: 0.42
+    catcher_model: 062_plasticbox
+    bowl_id: 1
+    bowl_scale_mult: 0.9
+    bowl_inner_radius: 0.08
+    bowl_outer_radius: 0.095
+    bowl_height: 0.06
+    bowl_mass: 0.35
+save_failed_cases: false
+save_data: false

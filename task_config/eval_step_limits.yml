@@ -1,0 +1,94 @@
+# Per-task rollout cutoff for policy evaluation, in policy steps.
+#
+# One policy step is one `TASK_ENV.take_action(...)`, i.e. one recorded frame at 16.667 Hz, so these
+# numbers are directly comparable with the episode lengths of the published demonstrations.
+#
+# demo_dynamic.yml has a single shared `eval_step_limit: 15000`
+# (envs/utils/household_view.py::EPISODE_MAX_STEPS). That guard is sized for data collection, where
+# envs/_base_task.py::_episode_step_count counts saved frames. With `save_data` off the same counter
+# counts `take_action_cnt`, so in evaluation 15000 is roughly forty times the longest expert
+# demonstration and a failing rollout would run for a very long time.
+#
+# `step_limit` is 1.2x the longest expert episode of that task, rounded up, measured over all
+# published demonstration episodes with every condition of a task pooled (a scenario only
+# lengthens an episode). A policy that has not finished within 1.2x the slowest scripted
+# demonstration has failed the episode.
+#
+# `episode_length` records the per-task episode lengths in the published demonstrations. Both
+# blocks are computed from `<lerobot_root>/*/meta/episodes.jsonl`.
+version: 1
+
+step_limit:
+  boil_milk: 374
+  catch_cuboid: 411
+  catch_cup: 837
+  catch_marbles_trapdoors: 136
+  catch_mouse_object_drop: 1028
+  catch_ramp_ball: 3010
+  catch_shelf_marble: 477
+  catch_valley_ball: 286
+  clean_table: 339
+  control_quality: 324
+  cook_food: 801
+  cook_food_timer: 888
+  cook_meat: 386
+  cook_meat_timer: 405
+  dispense_gummy: 360
+  drop_ball_hole: 897
+  fill_coffee_jar: 789
+  hit_target: 1544
+  load_train: 1127
+  make_soup: 1816
+  marble_shelf_maze: 346
+  measure_ingredient: 641
+  pack_fruits: 1776
+  pick_ripe_apple: 353
+  place_block_belt: 335
+  play_billiard: 518
+  pour_beer: 710
+  punch_dual_holes: 636
+  put_cup_belt: 586
+  save_goal: 612
+  sort_apples_belt: 545
+  stop_ball: 197
+  stop_valley_ball: 275
+  trap_bug: 194
+  whack_moles: 496
+
+# episodes / mean / 95th percentile / max, in frames, over the published corpus.
+episode_length:
+  boil_milk: {episodes: 50, mean: 302.9, p95: 310, max: 311}
+  catch_cuboid: {episodes: 150, mean: 147.5, p95: 264, max: 342}
+  catch_cup: {episodes: 50, mean: 580.9, p95: 671, max: 697}
+  catch_marbles_trapdoors: {episodes: 150, mean: 85.8, p95: 104, max: 113}
+  catch_mouse_object_drop: {episodes: 50, mean: 432.8, p95: 596, max: 856}
+  catch_ramp_ball: {episodes: 150, mean: 1014.3, p95: 2226, max: 2508}
+  catch_shelf_marble: {episodes: 150, mean: 157.7, p95: 275, max: 397}
+  catch_valley_ball: {episodes: 150, mean: 214.7, p95: 227, max: 238}
+  clean_table: {episodes: 50, mean: 199.1, p95: 238, max: 282}
+  control_quality: {episodes: 150, mean: 235.4, p95: 261, max: 270}
+  cook_food: {episodes: 50, mean: 574.8, p95: 631, max: 667}
+  cook_food_timer: {episodes: 50, mean: 578.9, p95: 651, max: 740}
+  cook_meat: {episodes: 150, mean: 291.1, p95: 318, max: 321}
+  cook_meat_timer: {episodes: 150, mean: 303.8, p95: 334, max: 337}
+  dispense_gummy: {episodes: 150, mean: 261.9, p95: 294, max: 300}
+  drop_ball_hole: {episodes: 150, mean: 191.5, p95: 483, max: 747}
+  fill_coffee_jar: {episodes: 50, mean: 390.5, p95: 594, max: 657}
+  hit_target: {episodes: 150, mean: 182.7, p95: 376, max: 1286}
+  load_train: {episodes: 150, mean: 418.0, p95: 470, max: 939}
+  make_soup: {episodes: 50, mean: 1345.4, p95: 1473, max: 1513}
+  marble_shelf_maze: {episodes: 150, mean: 255.4, p95: 282, max: 288}
+  measure_ingredient: {episodes: 50, mean: 387.7, p95: 523, max: 534}
+  pack_fruits: {episodes: 150, mean: 781.8, p95: 1232, max: 1480}
+  pick_ripe_apple: {episodes: 150, mean: 276.8, p95: 291, max: 294}
+  place_block_belt: {episodes: 150, mean: 242.9, p95: 266, max: 279}
+  play_billiard: {episodes: 150, mean: 296.4, p95: 358, max: 431}
+  pour_beer: {episodes: 50, mean: 472.2, p95: 532, max: 591}
+  punch_dual_holes: {episodes: 150, mean: 395.7, p95: 511, max: 530}
+  put_cup_belt: {episodes: 150, mean: 366.6, p95: 468, max: 488}
+  save_goal: {episodes: 150, mean: 407.1, p95: 481, max: 510}
+  sort_apples_belt: {episodes: 150, mean: 373.2, p95: 420, max: 454}
+  stop_ball: {episodes: 50, mean: 68.6, p95: 135, max: 164}
+  stop_valley_ball: {episodes: 150, mean: 211.4, p95: 223, max: 229}
+  trap_bug: {episodes: 50, mean: 117.0, p95: 145, max: 161}
+  whack_moles: {episodes: 150, mean: 237.2, p95: 306, max: 413}
